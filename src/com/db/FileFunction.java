@@ -8,15 +8,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.card.Card_rawYouJi;
-
 public class FileFunction {
 
 	public static List<String> readTxt(String txtAddress){
 		List<String> list = new ArrayList<String>();
 		File file = new File(txtAddress);
 		BufferedReader reader = null;
-		System.out.println("start-readTxt:");
+//		System.out.println("start-readTxt:");
 		try {
 			reader = new BufferedReader(new FileReader(file));
 			String temp = "";
@@ -29,7 +27,7 @@ public class FileFunction {
 				if(s == null){s = "";};
 				temp = ((!s.isEmpty()) ? s : "");
 				list.add(temp);
-				System.out.println("	line " + i + ": " + temp);
+//				System.out.println("	line " + i + ": " + temp);s
 			}
 			reader.close();
 		} 
@@ -62,4 +60,5 @@ public class FileFunction {
 		System.out.println("读取文件夹完成，共读取" + lists.size() + "篇");
 		return lists;
 	}
+	
 }
