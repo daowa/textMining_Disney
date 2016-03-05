@@ -4,13 +4,18 @@ public class MyStatic {
 
 	public final static String DBName = "disney";
 	
-	public final static String TABLE_rawYouJi = "raw_youji";
-	public final static String TABLE_rawDianPing = "raw_dianping";
-	public final static String TABLE_rawWenDa = "raw_wenda";
-	//放在待处理的表中数据
-//	public final static String TABLE_rawYouJi = "clean_youji";
-//	public final static String TABLE_rawDianPing = "clean_dianping";
-//	public final static String TABLE_rawWenDa = "clean_wenda";
+	//原始数据表
+//	public final static String TABLE_YouJi = "raw_youji";
+//	public final static String TABLE_DianPing = "raw_dianping";
+//	public final static String TABLE_WenDa = "raw_wenda";
+	//待清理表（工作状态）
+//	public final static String TABLE_YouJi = "clean_youji";
+//	public final static String TABLE_DianPing = "clean_dianping";
+//	public final static String TABLE_WenDa = "clean_wenda";
+	//测试表（测试状态）
+	public final static String TABLE_YouJi = "test_youji";
+	public final static String TABLE_DianPing = "test_dianping";
+	public final static String TABLE_WenDa = "test_wenda";
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";
@@ -54,5 +59,7 @@ public class MyStatic {
 	public final static int Category_YouJi = 0;
 	public final static int Category_DianPing = 1;
 	public final static int Category_WenDa = 2;
+	
+	public final static String Others_Line = "————————————————————————————————————————————————————————";
 	
 }

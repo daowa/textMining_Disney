@@ -3,7 +3,9 @@ package com.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import com.myClass.MyStatic;
@@ -66,7 +68,7 @@ public class DBFunction {
     //插入单条原始资料进入 游记表
     public static int insertYouji(List<String> list, String webFrom, String city){
     	int i = 0;
-        String sql="insert into " + MyStatic.TABLE_rawYouJi + "(" + 
+        String sql="insert into " + MyStatic.TABLE_YouJi + "(" + 
         		MyStatic.KEY_Title + "," + 
         		MyStatic.KEY_Content + "," + 
         		MyStatic.KEY_Author + "," + 
@@ -104,7 +106,7 @@ public class DBFunction {
     //插入单条原始资料进入 点评表
     public static int insertDianPing(List<String> list, String webFrom, String city){
     	int i = 0;
-        String sql="insert into " + MyStatic.TABLE_rawDianPing + "(" + 
+        String sql="insert into " + MyStatic.TABLE_DianPing + "(" + 
         		MyStatic.KEY_Content + "," + 
         		MyStatic.KEY_Author + "," + 
         		MyStatic.KEY_Time + "," + 
@@ -140,7 +142,7 @@ public class DBFunction {
     //插入单条原始资料进入 问答表
     public static int insertWenDa(List<String> list, String webFrom, String city){
     	int i = 0;
-        String sql="insert into " + MyStatic.TABLE_rawWenDa + "(" + 
+        String sql="insert into " + MyStatic.TABLE_WenDa + "(" + 
         		MyStatic.KEY_Title + "," + 
         		MyStatic.KEY_Content + "," + 
         		MyStatic.KEY_Author + "," + 
@@ -174,24 +176,68 @@ public class DBFunction {
         return i;//返回影响的行数，1为执行成功  
     }
 	
-//	public static void select(){
-//		sql = "select *from raw_youji";//SQL语句  
-//        db1 = new DBHelper(sql);//创建DBHelper对象  
-//  
-//        try {  
-//            ret = db1.pst.executeQuery();//执行语句，得到结果集  
-//            while (ret.next()) {  
-//                String uid = ret.getString(1);  
-//                String ufname = ret.getString(2);  
-//                String ulname = ret.getString(3);  
-//                String udate = ret.getString(4);  
-//                System.out.println(uid + "\t" + ufname + "\t" + ulname + "\t" + udate );  
-//            }//显示数据  
-//            ret.close();  
-//            db1.close();//关闭连接  
-//        } catch (SQLException e) {  
-//            e.printStackTrace();  
-//        }
-//	}
+    public static ResultSet selectAllFromYouJi(){
+    	String sql = "select * from " + MyStatic.TABLE_YouJi;  
+		try {
+			Statement stmt = cnn.createStatement(); 
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
+    //选择非香港的游记，其它地区的游记有错分的可能
+    public static ResultSet selectNotHongKongFromYouJi(){
+    	String sql = "select * from " + MyStatic.TABLE_YouJi + " where " + MyStatic.KEY_City + " != \"" + MyStatic.City_HongKong + "\"";
+		try {
+			Statement stmt = cnn.createStatement(); 
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
+    public static void delete(int id, String table){
+    	
+    	String idRaw = "";
+    	if(table == MyStatic.TABLE_YouJi) idRaw = MyStatic.KEY_ID_rawYouJi;
+    	else if(table == MyStatic.TABLE_DianPing) idRaw = MyStatic.KEY_ID_rawDianPing;
+    	else if(table == MyStatic.TABLE_WenDa) idRaw = MyStatic.KEY_ID_rawWenDa;
+    	String sql = "delete from " + table + " where " + idRaw + " = " + id;
+    	
+        try  
+        {  
+            Statement stmt = cnn.createStatement();  
+            int i = stmt.executeUpdate(sql);
+            if(i > 0)
+            	U.print("删除成功: id=" + id);
+        }  
+        catch (SQLException e)  
+        {  
+            e.printStackTrace();  
+        }  
+    }  
+    
+    public static void updateYouJiCity(int id, String table, String newCity){
+        String sql="update " + MyStatic.TABLE_YouJi + " set " + MyStatic.KEY_City + "=? where " + MyStatic.KEY_ID_rawYouJi + " =?";//注意要有where条件 
+
+        int i=0;
+        try{  
+            PreparedStatement preStmt =cnn.prepareStatement(sql);
+            preStmt.setString(1, newCity);
+            preStmt.setInt(2, id);
+            i=preStmt.executeUpdate();
+        }  
+        catch (SQLException e)  
+        {  
+            e.printStackTrace();  
+        }
+        if(i > 0)
+        	U.print("将id" + id + "的城市修改为" + newCity);
+    }
 
 }
