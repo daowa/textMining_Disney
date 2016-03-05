@@ -8,14 +8,14 @@ public class MyStatic {
 //	public final static String TABLE_YouJi = "raw_youji";
 //	public final static String TABLE_DianPing = "raw_dianping";
 //	public final static String TABLE_WenDa = "raw_wenda";
-	//待清理表（工作状态）
-//	public final static String TABLE_YouJi = "clean_youji";
-//	public final static String TABLE_DianPing = "clean_dianping";
-//	public final static String TABLE_WenDa = "clean_wenda";
-	//测试表（测试状态）
-	public final static String TABLE_YouJi = "test_youji";
-	public final static String TABLE_DianPing = "test_dianping";
-	public final static String TABLE_WenDa = "test_wenda";
+	//待清理表（生产环境）
+	public final static String TABLE_YouJi = "clean_youji";
+	public final static String TABLE_DianPing = "clean_dianping";
+	public final static String TABLE_WenDa = "clean_wenda";
+	//测试表（测试环境）
+//	public final static String TABLE_YouJi = "test_youji";
+//	public final static String TABLE_DianPing = "test_dianping";
+//	public final static String TABLE_WenDa = "test_wenda";
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";

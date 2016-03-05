@@ -72,9 +72,10 @@ public class Data_PreProcessing {
 	
 	//蚂蜂窝有些游记的城市放错了
 	public static void youji_resetCity(){
-		ResultSet rs = DBFunction.selectNotHongKongFromYouJi();
+		ResultSet rs = DBFunction.selectAllFromYouJi();
 		try {
 			int resetCount = 0;
+			int deleteCount = 0;
 			while(rs.next()){
 				String title = rs.getString(MyStatic.KEY_Title);
 				String content = rs.getString(MyStatic.KEY_Content);
@@ -84,13 +85,14 @@ public class Data_PreProcessing {
 				//对于标题就显示出城市名的，认为匹配，不进行进一步正则匹配
 				if(title.matches(".*" + city + ".*")) continue;
 				//有些有标志性的城市可以直接处理
-				if(title.matches(".*香港.*") || title.matches(".*澳门.*")){
+				if(title.matches(".*香港.*") || title.matches(".*澳门.*") || title.matches(".*港澳.*") || title.matches(".*(H|h)ong(K|k)ong.*")
+						 || title.matches(".*HK.*")){
 					if(city.equals(MyStatic.City_HongKong))
 						continue;
 					else {
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_HongKong);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_HongKong);
+						resetCount++;
+						U.print("第" + resetCount + "个重置城市");
 						continue;
 					}
 				}
@@ -98,19 +100,20 @@ public class Data_PreProcessing {
 					if(city.equals(MyStatic.City_California))
 						continue;
 					else {
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_California);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_California);
+						resetCount++;
+						U.print("第" + resetCount + "个重置城市");
 						continue;
 					}
 				}
-				if((title.matches(".*日本.*") || title.matches(".*霓虹.*") || title.matches(".*樱花.*") || title.matches(".*东京.*"))){
+				if(title.matches(".*日本.*") || title.matches(".*霓虹.*") || title.matches(".*樱花.*") || title.matches(".*东京.*")
+						 || title.matches(".*(T|t)okyo.*") || title.matches(".*東京.*")){
 					if(city.equals(MyStatic.City_Tokyo))
 						continue;
 					else {
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Tokyo);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Tokyo);
+						resetCount++;
+						U.print("第" + resetCount + "个重置城市");
 						continue;
 					}
 				}
@@ -118,19 +121,19 @@ public class Data_PreProcessing {
 					if(city.equals(MyStatic.City_Paris))
 						continue;
 					else {
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Paris);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Paris);
+						resetCount++;
+						U.print("第" + resetCount + "个重置城市");
 						continue;
 					}
 				}
-				if(title.matches(".*奥兰多.*") || title.matches(".*佛罗里达.*") || title.matches(".*Florida.*")){
+				if(title.matches(".*奥兰多.*") || title.matches(".*佛罗里达.*") || title.matches(".*(F|f)lorida.*") || title.matches(".*(O|o)rlando.*")){
 					if(city.equals(MyStatic.City_Orlando))
 						continue;
 					else {
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Orlando);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, MyStatic.City_Orlando);
+						resetCount++;
+						U.print("第" + resetCount + "个重置城市");
 						continue;
 					}
 				}
@@ -148,11 +151,18 @@ public class Data_PreProcessing {
 					U.print("标题：" + title);
 					U.print("正文：" + content);
 					U.print("城市：" + city);
-					U.print("请输入操作指令:c-加州;h-香港;o-奥兰多;p-巴黎;t-东京,直接回车表示next");
-//					
+					U.print("请输入操作指令:c-加州;h-香港;o-奥兰多;p-巴黎;t-东京,d表示删除,直接回车表示next");
+					
+					String newCity = "";
 					Scanner sc = new Scanner(System.in);
 					String order = sc.nextLine();
-					String newCity = "";
+					
+					if(order.equals("d")){
+						deleteCount ++;
+						DBFunction.delete(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi);
+						continue;
+					}
+					
 					if(order.equals("c"))
 						newCity = MyStatic.City_California;
 					else if(order.equals("h"))
@@ -163,16 +173,16 @@ public class Data_PreProcessing {
 						newCity = MyStatic.City_Paris;
 					else if(order.equals("t"))
 						newCity = MyStatic.City_Tokyo;
-//					
-//					if(!newCity.equals("")){
-//						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, newCity);
-//						resetCount++;
-//						U.print("第" + resetCount + "个重置城市");
-//					}
-					resetCount ++;
+					
+					if(!newCity.equals("")){
+						DBFunction.updateYouJiCity(rs.getInt(MyStatic.KEY_ID_rawYouJi), MyStatic.TABLE_YouJi, newCity);
+						resetCount ++;
+						U.print("第" + resetCount + "个重置城市");
+					}
 				}
 			}
-			U.print(resetCount + "");
+			U.print("重置" + resetCount);
+			U.print("删除" + deleteCount);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
