@@ -9,18 +9,21 @@ public class MyStatic {
 //	public final static String TABLE_DianPing = "raw_dianping";
 //	public final static String TABLE_WenDa = "raw_wenda";
 	//待清理表（生产环境）
-	public final static String TABLE_YouJi = "clean_youji";
-	public final static String TABLE_DianPing = "clean_dianping";
-	public final static String TABLE_WenDa = "clean_wenda";
+//	public final static String TABLE_YouJi = "clean_youji";
+//	public final static String TABLE_DianPing = "clean_dianping";
+//	public final static String TABLE_WenDa = "clean_wenda";
 	//测试表（测试环境）
-//	public final static String TABLE_YouJi = "test_youji";
-//	public final static String TABLE_DianPing = "test_dianping";
-//	public final static String TABLE_WenDa = "test_wenda";
+	public final static String TABLE_YouJi = "test_youji";
+	public final static String TABLE_DianPing = "test_dianping";
+	public final static String TABLE_WenDa = "test_wenda";
+	
+	public final static String TABLE_Middle = "middle";
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";
 	public final static String KEY_ID_rawDianPing = "idraw_dianping";
 	public final static String KEY_ID_rawWenDa = "idraw_wenda";
+	public final static String KEY_ID_id = "id";
 	public final static String KEY_Title = "title";
 	public final static String KEY_Content = "content";
 	public final static String KEY_Author = "author";
@@ -42,6 +45,9 @@ public class MyStatic {
 	//问答特有
 	public final static String KEY_UpContent = "up_content";
 	
+	//中间数据库
+	public final static String KEY_Stats = "stats";
+	
 	public final static String WebFrom_MaFengWo = "蚂蜂窝";
 	public final static String WebFrom_XieCheng = "携程";
 	public final static String WebFrom_BaiDuTravel = "百度旅游";
@@ -59,6 +65,13 @@ public class MyStatic {
 	public final static int Category_YouJi = 0;
 	public final static int Category_DianPing = 1;
 	public final static int Category_WenDa = 2;
+	
+	public final static int Index_WordCount = 0;//词出现数量
+	public final static int Index_WordFrequency = 1;//词频
+	public final static int Index_TFIDF = 2;//tf-idf
+	public final static int Index_WordCharacteristic = 3;//词性
+	public final static int Index_WordLength = 4;//词长（可以直接key.length，但是不统一，所以增加空间存储量统一下代码）
+	public final static int Index_Position_FirstWord = 5;//第一次出现在第几个字（去停用词）
 	
 	public final static String Others_Line = "————————————————————————————————————————————————————————";
 	

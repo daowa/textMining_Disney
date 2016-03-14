@@ -1,5 +1,8 @@
 package com.myClass;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class U {
 	
 	public static boolean isNumeric(String str){
@@ -79,5 +82,33 @@ public class U {
 		
 	public static void print(String s){
 		System.out.println(s);
+	}
+	
+	public static String listlist2String(List<ArrayList<String>> listlist){
+		String result = "";
+		for(int i = 0; i < listlist.size(); i++){
+			for(int j = 0; j < listlist.get(i).size(); j++){
+				result += listlist.get(i).get(j);
+				if(j != listlist.get(i).size() - 1)
+					result += ",";
+				else if(i != listlist.size()-1)
+					result += ";";
+			}
+		}
+		return result;
+	}
+	
+	public static List<ArrayList<String>> string2ListList(String s){
+		List<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
+		String[] words = s.split(";");
+		for(int i = 0; i < words.length; i++){
+			String[] word = words[i].split(",");
+			ArrayList<String> result = new ArrayList<String>();
+			for(String item : word){
+				result.add(item);
+			}
+			results.add(result);
+		}
+		return results;
 	}
 }

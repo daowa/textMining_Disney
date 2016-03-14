@@ -239,5 +239,43 @@ public class DBFunction {
         if(i > 0)
         	U.print("将id" + id + "的城市修改为" + newCity);
     }
+    
+    
+    public static ResultSet selectAllFromDianPing(){
+    	String sql = "select * from " + MyStatic.TABLE_DianPing;  
+		try {
+			Statement stmt = cnn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
+    public static int getDianPingCount(){
+    	String sql = "select count(*) as rowCount from " + MyStatic.TABLE_DianPing;
+    	int count = 0;
+    	try{
+    		Statement stmt = cnn.createStatement();//两个参数来结果集中的指针可以移动
+			ResultSet rs = stmt.executeQuery(sql);
+			rs.next();
+			count = rs.getInt("rowCount");
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}  
+    	return count;
+    }
+    
+    //插入中间数据库s
+    public static int insertMiddle(int id, String stats) throws SQLException{
+    	int i = 0;
+    	String sql = "insert into " + MyStatic.TABLE_Middle + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Stats + ") value(?,?)";
+    	PreparedStatement ps = cnn.prepareStatement(sql);
+    	ps.setInt(1, id);
+    	ps.setString(2, stats);
+    	i = ps.executeUpdate();
+    	return i;
+    }
 
 }

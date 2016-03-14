@@ -1,13 +1,18 @@
 package com.main;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.data.Data_PreProcessing;
+import com.data.Data_Segmentation;
 import com.db.DBFunction;
 import com.db.FileFunction;
 import com.myClass.MyStatic;
 import com.myClass.U;
+import com.myClass.test;
 
 public class Disney {
 
@@ -17,11 +22,13 @@ public class Disney {
 	private static String categoryAddress_dianping = "E:\\work\\迪士尼\\原始文本数据\\点评";
 	private static String categoryAddress_wenda = "E:\\work\\迪士尼\\原始文本数据\\问答";
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws SQLException, IOException{
 		
+//		单篇插入数据库
 //		List<String> list = FileFunction.readTxt(txtAddress);
 //		DBFunction.insertYouji(list, MyStatic.WebFrom_XieCheng);
 		
+//		整个文件夹插入数据库
 //		List<List<String>> lists = FileFunction.readTxtInFile(fileAddress);
 //		DBFunction.insertBatch(MyStatic.Category_DianPing, lists, MyStatic.WebFrom_MaFengWo, MyStatic.City_HongKong);
 		
@@ -32,7 +39,12 @@ public class Disney {
 		
 		//游记数据清理
 //		Data_PreProcessing.youji_deleteNoDisney();//清理与迪士尼无关的游记
-		Data_PreProcessing.youji_resetCity();//蚂蜂窝有些游记的城市放错了，规则+人工重新放置
+//		Data_PreProcessing.youji_resetCity();//蚂蜂窝有些游记的城市放错了，规则+人工重新放置
+		
+//		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
+		Data_Segmentation.DianPing_WordFeature();//分词、粗降维、存储词特征、放入中间数据库
+		
+//		test.test();
 	}
 	
 }
