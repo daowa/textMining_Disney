@@ -20,14 +20,6 @@ public class Data_PreProcessing {
 		String[] webList = file.list();
 		String[] cityList = {MyStatic.City_HongKong, MyStatic.City_California, MyStatic.City_Orlando, MyStatic.City_Paris, MyStatic.City_Tokyo};
 			
-//			for(int i = 0; i < webList.length; i++){
-//				for(int j = 0; j < cityList.length; j++){
-//					String fileAddress = categoryAddress + "\\" + webList[i] + "\\" + cityList[j];
-//					List<List<String>> lists = FileFunction.readTxtInFile(fileAddress);
-//					DBFunction.insertBatch(category, lists, webList[i], cityList[j]);
-//				}
-//			}
-			
 		for(int i = 0; i < webList.length; i++){
 			for(int j = 0; j < cityList.length; j++){
 				String fileAddress = categoryAddress + "\\" + webList[i] + "\\" + cityList[j];
@@ -151,7 +143,7 @@ public class Data_PreProcessing {
 					U.print("标题：" + title);
 					U.print("正文：" + content);
 					U.print("城市：" + city);
-					U.print("请输入操作指令:c-加州;h-香港;o-奥兰多;p-巴黎;t-东京,d表示删除,直接回车表示next");
+					U.print(">>请输入操作指令:c-加州;h-香港;o-奥兰多;p-巴黎;t-东京,d表示删除,直接回车表示next");
 					
 					String newCity = "";
 					Scanner sc = new Scanner(System.in);

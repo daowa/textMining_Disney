@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.transform.Result;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.db.DBFunction;
 import com.db.FileFunction;
 import com.myClass.MyStatic;
@@ -120,7 +122,7 @@ public class Data_Segmentation {
 			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String content = rs.getString(MyStatic.KEY_Content);
 			Map<String, Vector<String>> map = getDianPingWordFeature(content, mapIDF);
-			if(DBFunction.insertMiddle(id, map.toString()) > 0){
+			if(DBFunction.insertMiddle(id, JSON.toJSONString(map)) > 0){
 				U.print("插入第" + ++c + "条成功");
 			}
 		}
@@ -134,9 +136,10 @@ public class Data_Segmentation {
 		int c = 0;//计数器
 		while(rs.next()){
 			
-			U.print("处理第" + ++c + "条游记的idf");
+			U.print("处理第" + ++c + "条游记的idf, id为" + rs.getInt(MyStatic.KEY_ID_rawDianPing));
 			
 			String content = rs.getString(MyStatic.KEY_Content);
+			U.print("content:" + content);
 			String[] words = NLPIR.wordSegmentateWithoutCharacteristic(content);
 			List<String> stopWords = NLPIR.getStopWords();
 
@@ -180,6 +183,7 @@ public class Data_Segmentation {
 			}
 		}
 		
+		int wordsLength = words.length;//总词数，用于tf的归一化
 		for(String nlpWord : words){
 			String word = getWord(nlpWord);//获取原词
 			String characteristic = getCharacteristic(nlpWord);//获取词性
@@ -204,7 +208,7 @@ public class Data_Segmentation {
 				map.put(word, v);
 				//计算tf-idf
 				float idf = mapIDF.get(word) != null ? mapIDF.get(word) : 0;
-				v.set(MyStatic.Index_TFIDF, wordFrequency * idf + "");
+				v.set(MyStatic.Index_TFIDF, wordFrequency/wordsLength * idf + "");
 				
 				firstPosition += word.length();//(去除停用词后)移动前向距离
 			}

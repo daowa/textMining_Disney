@@ -18,6 +18,7 @@ public class MyStatic {
 	public final static String TABLE_WenDa = "test_wenda";
 	
 	public final static String TABLE_Middle = "middle";
+	public final static String TABLE_TrainingSet = "training_set";
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";
@@ -47,6 +48,9 @@ public class MyStatic {
 	
 	//中间数据库
 	public final static String KEY_Stats = "stats";
+	
+	//关键词数据库
+	public final static String KEY_Keyword = "keyword";
 	
 	public final static String WebFrom_MaFengWo = "蚂蜂窝";
 	public final static String WebFrom_XieCheng = "携程";

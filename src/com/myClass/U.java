@@ -1,7 +1,15 @@
 package com.myClass;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 public class U {
 	
@@ -83,6 +91,15 @@ public class U {
 	public static void print(String s){
 		System.out.println(s);
 	}
+	public static void print(String[] ss){
+		String result = "";
+		for(String s : ss){
+			result += s;
+			result += ",";
+		}
+		result = result.substring(0, result.length()-1);
+		System.out.println(result);
+	}
 	
 	public static String listlist2String(List<ArrayList<String>> listlist){
 		String result = "";
@@ -110,5 +127,45 @@ public class U {
 			results.add(result);
 		}
 		return results;
+	}
+	
+	//将string转换成Map<String, Vector<String>>
+	public static Map<String, Vector<String>> string2Map(String s){
+		Map<String, Object> mapIn = (Map<String, Object>)JSON.parse(s);
+		Map<String, Vector<String>> mapOut = new HashMap<String, Vector<String>>();
+		for(String key : mapIn.keySet()){
+			List<String> list = (List<String>)mapIn.get(key);
+			Vector<String> vector = new Vector<String>();
+			//将list转化为vector
+			for(String item : list)
+				vector.add(item);
+			mapOut.put(key, vector);
+		}
+		return mapOut;
+	}
+	
+	//获取n个不相等的随机数字
+	public static HashSet<Integer> getRandom(int n, int start, int end){//包含start，不包含end
+		HashSet<Integer> hs = new HashSet<Integer>();
+		while(true){
+			int a = (int)(start + Math.random()*(end - start));
+			hs.add(a);
+		if(hs.size() == n)
+			break;
+		}
+		return hs;
+	}
+	
+	//将n个随机数变成(a,b,c,d,e)的形式，便于数据库查询
+	public static String getRandom_String(HashSet<Integer> hs){
+		String result = "(";
+		Iterator<Integer> it = hs.iterator();
+		while(it.hasNext()){
+			int temp = it.next();
+			result += (temp + ",");
+		}
+		result = result.substring(0, result.length()-1);//去除最后一个逗号
+		result += ")";
+		return result;
 	}
 }

@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 import com.myClass.MyStatic;
 import com.myClass.U;
@@ -119,8 +122,9 @@ public class DBFunction {
         		MyStatic.KEY_City + ") values(?,?,?,?,?,?,?,?,?,?)";  
         try{  
             PreparedStatement preStmt =cnn.prepareStatement(sql);  
-            preStmt.setString(1, (webFrom == MyStatic.WebFrom_MaFengWo || webFrom == MyStatic.WebFrom_QiongYou) ? U.decodeUnicode(list.get(0)) : list.get(0));  
-            preStmt.setString(2, (webFrom == MyStatic.WebFrom_MaFengWo || webFrom == MyStatic.WebFrom_QiongYou) ? U.decodeUnicode(list.get(1)) : list.get(1));
+//            (webFrom == MyStatic.WebFrom_MaFengWo || webFrom == MyStatic.WebFrom_QiongYou) ? U.decodeUnicode(list.get(0)) : list.get(0)
+            preStmt.setString(1, U.decodeUnicode(list.get(0)));  
+            preStmt.setString(2, U.decodeUnicode(list.get(1)));
             preStmt.setString(3, list.get(2)!="" ? list.get(2) : "1970/01/01");
             
             preStmt.setInt(4, U.isNumeric(list.get(3)) ? Integer.parseInt(list.get(3)) : -1);
@@ -267,7 +271,7 @@ public class DBFunction {
     	return count;
     }
     
-    //插入中间数据库s
+    //插入中间数据库
     public static int insertMiddle(int id, String stats) throws SQLException{
     	int i = 0;
     	String sql = "insert into " + MyStatic.TABLE_Middle + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Stats + ") value(?,?)";
@@ -277,5 +281,74 @@ public class DBFunction {
     	i = ps.executeUpdate();
     	return i;
     }
+    
+    //随机获取n条点评，进行人工标引
+    //第一个参数：几条点评
+    //第二个参数：起始id
+    //第三个参数：结束id+1
+    public static ResultSet getRandomDianPing(int n, int startID, int endID) throws SQLException{
+    	String sql = "select * from " + MyStatic.TABLE_DianPing + " where " + MyStatic.KEY_ID_rawDianPing + " in "
+    			+ U.getRandom_String(U.getRandom(n, startID, endID)) + ";";
+    	Statement stmt = cnn.createStatement();
+    	ResultSet rs = stmt.executeQuery(sql);
+    	return rs;
+    }
+    
+    //根据id从中间数据库获取该记录的词频、tf-idf、词性等特征数据
+    public static Map<String, Vector<String>> getDianPingStats(int id) throws SQLException{
+    	String sql = "select * from " + MyStatic.TABLE_Middle + " where " + MyStatic.KEY_ID_rawDianPing + " = " + id;
+    	Statement stmt = cnn.createStatement();
+    	ResultSet rs = stmt.executeQuery(sql);
+    	rs.next();
+    	String stats = rs.getString(MyStatic.KEY_Stats);
+    	Map<String, Vector<String>> map = U.string2Map(stats);
+    	return map;
+    }
+    
+    //将标引的关键词写入数据库
+    public static int insertTrainingSet(int id, String[] keywords) throws SQLException{
+    	int i = 0;
+    	String sql = "insert into " + MyStatic.TABLE_TrainingSet + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Keyword + ") value(?,?)";
+    	String s_keywords = "";//将keywords的list转化成 a,b,c 的形式，便于下次出库的时候的调用
+    	for(String word : keywords)
+    		s_keywords += word + ",";
+    	s_keywords = s_keywords.substring(0, s_keywords.length()-1);
+    	U.print(s_keywords);
+    	PreparedStatement ps = cnn.prepareStatement(sql);
+    	ps.setInt(1, id);
+    	ps.setString(2, s_keywords);
+    	i = ps.executeUpdate();
+    	return i;
+    }
 
+    //获取标引的测试集数据中的所有记录
+    public static ResultSet selectAllFromTrainingSet(){
+    	String sql = "select * from " + MyStatic.TABLE_TrainingSet;  
+		try {
+			Statement stmt = cnn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
+    //根据id从middle表中获取特征值
+    public static String getFeature(int id){
+    	String sql = "select * from " + MyStatic.TABLE_Middle + " where " + MyStatic.KEY_ID_rawDianPing + " = " + id;
+    	String result = "";
+    	try {
+    		Statement stmt = cnn.createStatement();
+    		ResultSet rs = stmt.executeQuery(sql);
+    		if(rs.next())
+    			result = rs.getString(MyStatic.KEY_Stats);
+    		else
+    			result = "nothing";
+    		
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	}
+		return result;
+     }
 }

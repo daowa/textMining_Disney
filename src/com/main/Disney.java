@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.data.Data_PreProcessing;
 import com.data.Data_Segmentation;
+import com.data.Data_Training;
 import com.db.DBFunction;
 import com.db.FileFunction;
 import com.myClass.MyStatic;
@@ -42,7 +43,13 @@ public class Disney {
 //		Data_PreProcessing.youji_resetCity();//蚂蜂窝有些游记的城市放错了，规则+人工重新放置
 		
 //		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
-		Data_Segmentation.DianPing_WordFeature();//分词、粗降维、存储词特征、放入中间数据库
+//		Data_Segmentation.DianPing_WordFeature();//分词、粗降维、存储词特征、放入中间数据库
+		
+		//人工标引训练集
+//		Data_Training.humanIndexing();
+		
+		//将训练集输出到txt，以便于python使用
+		Data_Training.DataTraining2Txt();
 		
 //		test.test();
 	}
