@@ -50,6 +50,7 @@ public class Disney {
 		
 		//将训练集输出到txt，以便于python使用
 		Data_Training.DataTraining2Txt();
+		Data_Training.DataMiddle2Txt();
 		
 //		test.test();
 	}

@@ -334,6 +334,19 @@ public class DBFunction {
         return null;  
     }
     
+    //获取middle中的所有记录
+    public static ResultSet selectAllFromMiddle(){
+    	String sql = "select * from " + MyStatic.TABLE_Middle;
+    	try {
+			Statement stmt = cnn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
     //根据id从middle表中获取特征值
     public static String getFeature(int id){
     	String sql = "select * from " + MyStatic.TABLE_Middle + " where " + MyStatic.KEY_ID_rawDianPing + " = " + id;

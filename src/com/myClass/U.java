@@ -168,4 +168,61 @@ public class U {
 		result += ")";
 		return result;
 	}
+	
+	//将词性用数字表示
+	/**
+	 * @param ch
+	 * @return
+	 */
+	public static int wordCharacters2Int(String ch){
+		if(ch.matches("/nr.*"))
+			return 1;
+		else if(ch.matches("/ns.*"))
+			return 2;
+		else if(ch.matches("/n.*"))
+			return 3;
+		else if(ch.matches("/t.*"))
+			return 4;
+		else if(ch.matches("/s.*"))
+			return 5;
+		else if(ch.matches("/f.*"))
+			return 6;
+		else if(ch.matches("/v.*"))
+			return 7;
+		else if(ch.matches("/a.*"))
+			return 8;
+		else if(ch.matches("/b.*"))
+			return 9;
+		else if(ch.matches("/z.*"))
+			return 10;
+		else if(ch.matches("/r.*"))
+			return 11;
+		else if(ch.matches("/m.*"))
+			return 12;
+		else if(ch.matches("/q.*"))
+			return 13;
+		else if(ch.matches("/d.*"))
+			return 14;
+		else if(ch.matches("/p.*"))
+			return 15;
+		else if(ch.matches("/c.*"))
+			return 16;
+		else if(ch.matches("/u.*"))
+			return 17;
+		else if(ch.matches("/e.*"))
+			return 18;
+		else if(ch.matches("/y.*"))
+			return 19;
+		else if(ch.matches("/o.*"))
+			return 20;
+		else if(ch.matches("/h.*"))
+			return 21;
+		else if(ch.matches("/k.*"))
+			return 22;
+		else if(ch.matches("/x.*"))
+			return 23;
+		else if(ch.matches("/w.*"))
+			return 24;
+		return -1;
+	}
 }

@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.myClass.MyStatic;
 import com.myClass.U;
 
 public class FileFunction {
@@ -123,4 +125,59 @@ public class FileFunction {
 		return lists;
 	}
 	
+	
+    //将训练集中的x输出到txt
+	public static void writeTrainingSetX(List<List<Double>> listX) throws IOException{
+	    FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingX.txt");   
+	    for(int i = 0; i < listX.size(); i++) {
+	    	for(int j = 0; j < listX.get(i).size(); j++){
+	    		fw.write(listX.get(i).get(j) + "");
+	    		if(j != listX.get(i).size()-1)
+	    			fw.write(",");
+	    	}
+	    	if(i != listX.size()-1)
+	    		fw.write("\r\n");
+	    }   
+	    fw.close(); 
+	    U.print("训练集X输出完成");
+	}
+	
+	//将训练集中的y输出到txt
+	public static void writeTrainingSetY(List<Integer> listY) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingY.txt");
+		for(int i = 0; i < listY.size(); i++){
+			fw.write(listY.get(i) + "");
+			if(i != listY.size()-1)
+				fw.write("\r\n");
+		}
+		fw.close();
+		U.print("训练集Y输出完成");
+	}
+	
+	//输出middle的特征值
+	public static void writeEveryMiddleFeature(List<List<Double>> listX, int id) throws IOException{
+	    FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\单篇特征值\\" + id + ".txt");   
+	    for(int i = 0; i < listX.size(); i++) {
+	    	for(int j = 0; j < listX.get(i).size(); j++){
+	    		fw.write(listX.get(i).get(j) + "");
+	    		if(j != listX.get(i).size()-1)
+	    			fw.write(",");
+	    	}
+	    	if(i != listX.size()-1)
+	    		fw.write("\r\n");
+	    }   
+	    fw.close(); 
+	    U.print("id为" + id + "的记录特征值输出完成");
+	}
+	//输出middle特征值所对应的词
+	public static void writeEveryMiddleWord(List<String> listW, int id) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\单篇特征值所对应的词\\" + id + ".txt");   
+	    for(int i = 0; i < listW.size(); i++) {
+	    	fw.write(listW.get(i) + "");
+	    	if(i != listW.size()-1)
+	    		fw.write("\r\n");
+	    }   
+	    fw.close(); 
+	    U.print("id为" + id + "的记录原词输出完成");
+	}
 }
