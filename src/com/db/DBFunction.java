@@ -13,6 +13,7 @@ import java.util.Vector;
 
 import com.myClass.MyStatic;
 import com.myClass.U;
+import com.sun.org.apache.bcel.internal.generic.IfInstruction;
 
 public class DBFunction {
 	
@@ -271,6 +272,21 @@ public class DBFunction {
     	return count;
     }
     
+    public static int updateDianPingContent(int id, String content){
+    	String sql = "update " + MyStatic.TABLE_DianPing + " set " + MyStatic.KEY_Content + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    	int count = 0;
+    	try{
+    		PreparedStatement ps = cnn.prepareStatement(sql);
+    		ps.setString(1, content);
+    		ps.setInt(2, id);
+    		count = ps.executeUpdate();
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return count;
+    }
+    
     //插入中间数据库
     public static int insertMiddle(int id, String stats) throws SQLException{
     	int i = 0;
@@ -292,6 +308,16 @@ public class DBFunction {
     	Statement stmt = cnn.createStatement();
     	ResultSet rs = stmt.executeQuery(sql);
     	return rs;
+    }
+    //选择该待标引的点评之前并没有标引过
+    public static boolean DianPing_isIndexed(int id) throws SQLException{
+    	String sql = "select * from " + MyStatic.TABLE_TrainingSet + " where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    	PreparedStatement ps = cnn.prepareStatement(sql);
+    	ps.setInt(1, id);
+    	ResultSet rs = ps.executeQuery();
+    	if(rs.next())//如果该id存在在原表中，则说明标引过
+    		return true;
+    	return false;
     }
     
     //根据id从中间数据库获取该记录的词频、tf-idf、词性等特征数据

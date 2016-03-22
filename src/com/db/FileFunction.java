@@ -125,6 +125,33 @@ public class FileFunction {
 		return lists;
 	}
 	
+	//发现新词-读入文件集合中的词
+	public static String findNewWord_getDianPingSetString(String txtAddress) throws IOException{
+		File file = new File(txtAddress);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String all = "";
+		String one = "";
+		while((one = reader.readLine()) != null){
+			one.replace("\r", "");
+			one.replace("\n", "");
+			all += one.trim();
+		}
+		reader.close();
+		return all;
+	}
+	//发现新词-输出新词到txt
+	public static void findNewWord_outputNewWord2Txt(List<String> list) throws IOException{
+		U.print("开始输出新词");
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\vocabulary\\raw_newword.txt");
+		for(int i = 0; i < list.size(); i++){
+			U.print("输出第" + i + "行");
+			fw.write(list.get(i));
+			if(i != list.size()-1)
+				fw.write("\r\n");
+		}
+		fw.close();
+		U.print("新词输出到 raw_newword.txt 完成");
+	}
 	
     //将训练集中的x输出到txt
 	public static void writeTrainingSetX(List<List<Double>> listX) throws IOException{

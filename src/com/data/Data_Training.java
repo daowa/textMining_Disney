@@ -28,13 +28,16 @@ public class Data_Training {
 			Map<String, Vector<String>> map = DBFunction.getDianPingStats(id);
 			U.print("词统计:" + map.toString());
 			
+			if(DBFunction.DianPing_isIndexed(id)) continue;//如果已经标引过，则不用再标引s
+			
 			//输入标引的关键词
 			int wordCount = 3;//限制关键词数
 			while(true){
-				U.print(">>请输入" + wordCount + "个词，以空格分隔(记得将光标手动定位到下一行，否则会出现异常)");
+				U.print(">>请输入" + wordCount + "个词，以空格分隔(记得将光标手动定位到下一行，否则会出现异常)(输入pass跳过该条)");
 				Scanner sc = new Scanner(System.in);
 				String order = sc.nextLine();
-				U.print(order);
+				if(order.equals("pass"))//输入pass，跳过该条
+					break;
 				String[] keywords = order.split(" ");
 				//检查输入格式
 				if(keywords.length != wordCount){

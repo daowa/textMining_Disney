@@ -1,12 +1,18 @@
 package com.data;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.data.NLPIR.CLibrary;
 import com.db.DBFunction;
 import com.db.FileFunction;
 import com.myClass.MyStatic;
@@ -180,5 +186,68 @@ public class Data_PreProcessing {
 		}
 		
 	}
+	
+	//将点评中的繁体字转为简体字
+	public static void dianping_ZHConverter() throws SQLException{
+		ResultSet rs = DBFunction.selectAllFromDianPing();
+		while(rs.next()){
+			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			String rawContent = rs.getString(MyStatic.KEY_Content);
+			String newContent = U.ZHConverter_TraToSim(rawContent);
+			if(DBFunction.updateDianPingContent(id, newContent) > 0)
+				U.print("id为" + id + "的点评修改成功");
+		}
+		U.print("done");
+	}
+	
+	//输出点评文本，用nlpir的软件发现新词，然后人工筛选加入用户词典
+	public static void outputDianPingForFindNewWord() throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromDianPing();
+		String outputContent = "";//输出内容
+		for(int i = 0; true; i++){
+			if(!rs.next()) break;
+			String content = rs.getString(MyStatic.KEY_Content) + "\r\n";
+			outputContent += content;
+			if(i % MyStatic.SIZE_DianPingSet == 0){
+				FileWriter fw = new FileWriter("E:\\work\\迪士尼\\点评_用于发现新词\\" + i + ".txt");
+				fw.write(outputContent);
+				outputContent = "";
+				U.print("输出点评集，文件名为:" + i + ".txt");
+				fw.close();
+			}
+		}
+	}
+	
+	//发现新词，需人工添加进用户词典
+	public static void findNewWord() throws IOException{
+		NLPIR.NlpirInit();
+		List<String> list = new ArrayList<String>();
+		for(int i = 0; i < 35264 ; i+=MyStatic.SIZE_DianPingSet){
+			String txtAddress = "E:\\work\\迪士尼\\点评_用于发现新词\\" + i + ".txt";
+			String rawString = FileFunction.findNewWord_getDianPingSetString(txtAddress);
+			String s = NLPIR.getNewWord(rawString);
+			U.print(s);
+			if(s != "" && !s.isEmpty())
+				list.add(s);
+		}
+		FileFunction.findNewWord_outputNewWord2Txt(list);
+		U.print("新词发现处理完成");
+		NLPIR.NlpirExit();
+	}
+	
+	//读取用户词典并添加
+	public static void addUserDicFromTxt() throws IOException{
+		NLPIR.NlpirInit();
+		File file = new File("E:\\work\\迪士尼\\vocabulary\\userdic.txt");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = "";
+		while((line = reader.readLine()) != null){
+			line = line.trim();
+			String s[] = line.split("\t");
+			NLPIR.addUserDict(s[0], s[1]);
+		}
+		NLPIR.NlpirExit();
+	}
+	
 	
 }

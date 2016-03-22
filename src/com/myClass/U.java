@@ -10,6 +10,7 @@ import java.util.Vector;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.spreada.utils.chinese.ZHConverter;
 
 public class U {
 	
@@ -170,10 +171,6 @@ public class U {
 	}
 	
 	//将词性用数字表示
-	/**
-	 * @param ch
-	 * @return
-	 */
 	public static int wordCharacters2Int(String ch){
 		if(ch.matches("/nr.*"))
 			return 1;
@@ -224,5 +221,19 @@ public class U {
 		else if(ch.matches("/w.*"))
 			return 24;
 		return -1;
+	}
+	
+	//繁体字转简体字
+	public static String ZHConverter_TraToSim(String tradStr) {
+		ZHConverter converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);
+		String simplifiedStr = converter.convert(tradStr);
+		return simplifiedStr;
+	}
+	//简体字转繁体字
+	public static String ZHConverter_SimToTra(String simpStr) {
+		ZHConverter converter = ZHConverter
+				.getInstance(ZHConverter.TRADITIONAL);
+		String traditionalStr = converter.convert(simpStr);
+		return traditionalStr;
 	}
 }

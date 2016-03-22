@@ -1,9 +1,16 @@
 package com.data;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.db.FileFunction;
+import com.myClass.MyStatic;
+import com.myClass.U;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -30,7 +37,31 @@ public class NLPIR {
 			
 			public int NLPIR_DelUsrWord(String sWord);//add by qp 2008.11.10
 			
+			public void NLPIR_SaveTheUsrDic();
+			
 			public String NLPIR_GetLastErrorMsg();
+			
+			
+			//添加新词
+			
+			public boolean NLPIR_NWI_Start();//启动新词发现功能
+			
+			public boolean NLPIR_NWI_AddFile(String address); //添加新词训练的文件，可反复添加
+			
+			public boolean NLPIR_NWI_Complete();//添加文件或者训练内容结束
+			
+			public boolean NLPIR_NWI_Result2UserDict();//将新词识别结果导入到用户词典中;
+													   //需要在运行NLPIR_NWI_Complete()之后，才有效
+													   //如果需要将新词结果永久保存，建议在执行NLPIR_SaveTheUsrDic
+			
+			public String NLPIR_NWI_GetResult();
+			
+			//从字符串中获取新词,添加新词范围里仅这个执行有效
+		    public String NLPIR_GetNewWords(String sLine, int nMaxKeyLimit, boolean bWeightOut);
+		    
+		    public String NLPIR_GetFileNewWords(String sTextFile,int nMaxKeyLimit, boolean bWeightOut);
+
+
 			
 			//退出函数声明
 			public void NLPIR_Exit();
@@ -54,13 +85,10 @@ public class NLPIR {
 	public static void NlpirInit() throws UnsupportedEncodingException{
 		String argu = "";
 		
-		// String system_charset = "GBK";//GBK----0
 		String system_charset = "UTF-8";
 		
 		int charset_type = 1;
-		// int charset_type = 0;
 		
-		// 调用printf打印信息
 		if (!CLibrary.Instance.NLPIR_Init(argu.getBytes(system_charset), charset_type, "0".getBytes(system_charset))) {
 			System.err.println("初始化失败！");
 		}
@@ -87,6 +115,30 @@ public class NLPIR {
 		String stopWordsAddress = "E:\\work\\迪士尼\\vocabulary\\stopWords.txt";
 		List<String> stopWords = FileFunction.readTxt_StopWords(stopWordsAddress);
 		return stopWords;
+	}
+	
+	//添加用户词典
+	public static void addUserDict(String word, String characteritic){
+		CLibrary.Instance.NLPIR_AddUserWord(word + " " + characteritic);
+		CLibrary.Instance.NLPIR_SaveTheUsrDic();
+	}
+	
+	public static String getNewWord(String rawString) throws IOException{
+		return CLibrary.Instance.NLPIR_GetNewWords(rawString, 20, false);
+//		if(CLibrary.Instance.NLPIR_NWI_Start()) U.print("start");
+//		File file = new File("E:\\work\\迪士尼\\点评_用于发现新词\\50.txt");
+//		BufferedReader reader = new BufferedReader(new FileReader(file));
+//		String all = "";
+//		String one = "";
+//		while((one = reader.readLine()) != null){
+//			one.replace("\r", "");
+//			one.replace("\n", "");
+//			all += one.trim();
+//		}
+//		String s = CLibrary.Instance.NLPIR_GetNewWords(all, 10, false);
+//		U.print(s);
+//		if(CLibrary.Instance.NLPIR_NWI_Complete()) U.print("complete");
+//		if(CLibrary.Instance.NLPIR_NWI_Result2UserDict()) U.print("haha");
 	}
 	
 }

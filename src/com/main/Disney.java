@@ -38,10 +38,19 @@ public class Disney {
 //		Data_PreProcessing.readRawTextAndInsertDB(MyStatic.Category_DianPing, categoryAddress_dianping);
 //		Data_PreProcessing.readRawTextAndInsertDB(MyStatic.Category_WenDa, categoryAddress_wenda);
 		
+		//预处理工作
+//		Data_PreProcessing.outputDianPingForFindNewWord();//输出点评文本，通过nlpir的软件发现新词，人工筛选加入用户词典
+		Data_PreProcessing.findNewWord();//发现新词，人工筛选并添加到用户词典
+//		Data_PreProcessing.addUserDicFromTxt();//添加用户词典
+		
 		//游记数据清理
 //		Data_PreProcessing.youji_deleteNoDisney();//清理与迪士尼无关的游记
 //		Data_PreProcessing.youji_resetCity();//蚂蜂窝有些游记的城市放错了，规则+人工重新放置
 		
+		//点评数据清理
+//		Data_PreProcessing.dianping_ZHConverter();//将点评中的繁体字转为简体字
+		
+		//点评数据处理
 //		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
 //		Data_Segmentation.DianPing_WordFeature();//分词、粗降维、存储词特征、放入中间数据库
 		
@@ -49,8 +58,8 @@ public class Disney {
 //		Data_Training.humanIndexing();
 		
 		//将训练集输出到txt，以便于python使用
-		Data_Training.DataTraining2Txt();
-		Data_Training.DataMiddle2Txt();
+//		Data_Training.DataTraining2Txt();
+//		Data_Training.DataMiddle2Txt();
 		
 //		test.test();
 	}
