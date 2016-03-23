@@ -80,5 +80,5 @@ public class MyStatic {
 	public final static String Others_Line = "！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！";
 	
 	//謹富鐙泣得佩殻匯倖猟亀��補竃參戻函仟簡
-	public final static int SIZE_DianPingSet = 50;
+	public final static int SIZE_DianPingSet = 5000;
 }

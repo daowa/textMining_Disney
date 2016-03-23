@@ -125,20 +125,6 @@ public class NLPIR {
 	
 	public static String getNewWord(String rawString) throws IOException{
 		return CLibrary.Instance.NLPIR_GetNewWords(rawString, 20, false);
-//		if(CLibrary.Instance.NLPIR_NWI_Start()) U.print("start");
-//		File file = new File("E:\\work\\迪士尼\\点评_用于发现新词\\50.txt");
-//		BufferedReader reader = new BufferedReader(new FileReader(file));
-//		String all = "";
-//		String one = "";
-//		while((one = reader.readLine()) != null){
-//			one.replace("\r", "");
-//			one.replace("\n", "");
-//			all += one.trim();
-//		}
-//		String s = CLibrary.Instance.NLPIR_GetNewWords(all, 10, false);
-//		U.print(s);
-//		if(CLibrary.Instance.NLPIR_NWI_Complete()) U.print("complete");
-//		if(CLibrary.Instance.NLPIR_NWI_Result2UserDict()) U.print("haha");
 	}
 	
 }

@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import com.myClass.MyStatic;
 import com.myClass.U;
@@ -140,7 +143,7 @@ public class FileFunction {
 		return all;
 	}
 	//发现新词-输出新词到txt
-	public static void findNewWord_outputNewWord2Txt(List<String> list) throws IOException{
+	public static void findNewWord_outputNewWordRaw(List<String> list) throws IOException{
 		U.print("开始输出新词");
 		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\vocabulary\\raw_newword.txt");
 		for(int i = 0; i < list.size(); i++){
@@ -151,6 +154,30 @@ public class FileFunction {
 		}
 		fw.close();
 		U.print("新词输出到 raw_newword.txt 完成");
+	}
+	//读入raw_newword,返回所有行的list
+	public static List<String> findNewWord_getRawNewWord(String txtAddress) throws IOException{
+		List<String> list = new ArrayList<String>();
+		File file = new File(txtAddress);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String s = "";
+		while((s = reader.readLine()) != null){
+			list.add(s);
+		}
+		reader.close();
+		U.print("读入地址为" + txtAddress + "的新词");
+		return list;
+	}
+	//将新词的词频统计输出到txt
+	public static void findNewWord_outputNewWordFrequency(TreeMap<String, Integer> map) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\vocabulary\\newword_frequency.txt");
+		Set<Entry<String, Integer>> set = map.entrySet();
+		for(Entry<String, Integer> i : set){
+			fw.write(i.getKey() + "\t" + i.getValue());
+			fw.write("\r\n");
+		}
+		fw.close();
+		U.print("新词词频已输出到E:\\work\\迪士尼\\vocabulary\\newword_frequency.txt");
 	}
 	
     //将训练集中的x输出到txt

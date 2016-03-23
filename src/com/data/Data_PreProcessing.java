@@ -9,14 +9,20 @@ import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeMap;
 
 import com.data.NLPIR.CLibrary;
 import com.db.DBFunction;
 import com.db.FileFunction;
 import com.myClass.MyStatic;
 import com.myClass.U;
+import com.myClass.ValueComparator;
 
 public class Data_PreProcessing {
 
@@ -230,9 +236,35 @@ public class Data_PreProcessing {
 			if(s != "" && !s.isEmpty())
 				list.add(s);
 		}
-		FileFunction.findNewWord_outputNewWord2Txt(list);
+		FileFunction.findNewWord_outputNewWordRaw(list);
 		U.print("新词发现处理完成");
 		NLPIR.NlpirExit();
+	}
+	
+	//读取添加的新词，统计词频并排序输出到txt
+	public static void getNewWordFrequency() throws IOException{
+		int[] size = {1, 10, 50, 100, 500, 1000, 5000};
+		List<String> list = new ArrayList<String>();
+		for(int i = 0; i < size.length; i++){
+			String txtAddress = "E:\\work\\迪士尼\\vocabulary\\raw_newword" + size[i] + ".txt";
+			list.addAll(FileFunction.findNewWord_getRawNewWord(txtAddress));
+		}
+		//使用map存储新词与词频
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		for(int i = 0; i < list.size(); i++){
+			String line = list.get(i);
+			String[] words = line.substring(0, line.length() - 1).split("#");
+			for(String word : words){
+				int count = ((Integer)map.get(word) != null) ? (Integer)map.get(word)+1 : 1;
+				map.put(word, count);
+			}
+		}
+		ValueComparator vc = new ValueComparator(map);
+		TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(vc);
+		sortedMap.putAll(map);
+		Set<Entry<String, Integer>> set = sortedMap.entrySet();
+		//将新词词频统计写入txt
+		FileFunction.findNewWord_outputNewWordFrequency(sortedMap);
 	}
 	
 	//读取用户词典并添加

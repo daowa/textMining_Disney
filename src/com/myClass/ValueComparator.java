@@ -3,7 +3,7 @@ package com.myClass;
 import java.util.Comparator;
 import java.util.Map;
 
-//Map按照value排序
+//Map按照value从大到小排序
 public class ValueComparator implements Comparator<String> {
 	Map<String, Integer> base;  
     public ValueComparator(Map<String, Integer> base) {  
@@ -14,8 +14,12 @@ public class ValueComparator implements Comparator<String> {
     public int compare(String a, String b) {  
         if (base.get(a) >= base.get(b)) {  
             return -1;  
-        } else {  
+        }
+        else if(base.get(a) < base.get(b)){  
             return 1;  
-        } // returning 0 would merge keys  
+        } 
+        else {
+        	return 0;// returning 0 would merge keys  
+        }
     } 
 }

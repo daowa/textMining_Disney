@@ -40,7 +40,8 @@ public class Disney {
 		
 		//预处理工作
 //		Data_PreProcessing.outputDianPingForFindNewWord();//输出点评文本，通过nlpir的软件发现新词，人工筛选加入用户词典
-		Data_PreProcessing.findNewWord();//发现新词，人工筛选并添加到用户词典
+//		Data_PreProcessing.findNewWord();//发现新词，人工筛选并添加到用户词典
+		Data_PreProcessing.getNewWordFrequency();
 //		Data_PreProcessing.addUserDicFromTxt();//添加用户词典
 		
 		//游记数据清理
