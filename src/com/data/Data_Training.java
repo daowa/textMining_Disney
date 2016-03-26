@@ -74,14 +74,25 @@ public class Data_Training {
 	//将测试集中的内容输出到txt中，以供python使用
 	public static void DataTraining2Txt() throws SQLException, IOException{
 		ResultSet rs = DBFunction.selectAllFromTrainingSet();
-		List<Integer> listY = new ArrayList<Integer>();//存是否是关键词
 		List<List<Double>> listX = new ArrayList<List<Double>>();//存所有词特征
+		List<Integer> listY = new ArrayList<Integer>();//存是否是关键词
+		List<String> listWord = new ArrayList<String>();//存关键词
+		List<Integer> listID = new ArrayList<Integer>();//存测试集id
 		
 		while(rs.next()){
+			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			listID.add(id);//存id
+			
 			String[] keywords = rs.getString(MyStatic.KEY_Keyword).split(",");
 			List<String> listKeys = new ArrayList<String>();
 			listKeys = Arrays.asList(keywords);
-			 
+			
+			String line = "";
+			for(String keyword : keywords){
+				line += keyword + ",";
+			}
+			listWord.add(line.substring(0, line.length()-1));//存关键词
+			
 			String stats = DBFunction.getFeature(rs.getInt(MyStatic.KEY_ID_rawDianPing));
 			Map<String, Vector<String>> map = U.string2Map(stats);
 			for(String key : map.keySet()){
@@ -99,20 +110,20 @@ public class Data_Training {
 					listY.add(1);
 				else
 					listY.add(0);
+				
 			}
 		}
 		
 		FileFunction.writeTrainingSetX(listX);
 		FileFunction.writeTrainingSetY(listY);
+		FileFunction.writeTrainingSetWord(listWord);
+		FileFunction.writeTrainingID(listID);
+		
 	}
 	//将middle中的内容输出到txt中，以供python使用(注意确保特征字段和测试集的一致)
 	public static void DataMiddle2Txt() throws SQLException, IOException{
 		ResultSet rs = DBFunction.selectAllFromMiddle();
-		int count = 0;
 		while(rs.next()){
-			count ++;
-			if(count > 100) break;
-			
 			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String stats = rs.getString(MyStatic.KEY_Stats);
 			Map<String, Vector<String>> map = U.string2Map(stats);
@@ -120,6 +131,10 @@ public class Data_Training {
 			List<List<Double>> listX = new ArrayList<List<Double>>();//存词特征
 			List<String> listW = new ArrayList<String>();//存词名
 			for(String key : map.keySet()){
+				
+				//仅保留形容词之前的词
+				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 8)
+					continue;
 				
 				//存X
 				List<Double> listx = new ArrayList<Double>();//存单个词特征
@@ -136,5 +151,6 @@ public class Data_Training {
 			FileFunction.writeEveryMiddleFeature(listX, id);
 			FileFunction.writeEveryMiddleWord(listW, id);
 		}
+		U.print("middle中的数值与词名已输出到txt");
 	}
 }

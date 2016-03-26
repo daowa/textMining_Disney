@@ -1,7 +1,5 @@
 package com.data;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,18 +15,12 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.Result;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.db.DBFunction;
-import com.db.FileFunction;
 import com.myClass.MyStatic;
 import com.myClass.U;
 import com.myClass.ValueComparator;
-import com.mysql.fabric.xmlrpc.base.Array;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
 
 
 public class Data_Segmentation {

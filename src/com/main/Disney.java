@@ -41,7 +41,7 @@ public class Disney {
 		//预处理工作
 //		Data_PreProcessing.outputDianPingForFindNewWord();//输出点评文本，通过nlpir的软件发现新词，人工筛选加入用户词典
 //		Data_PreProcessing.findNewWord();//发现新词，人工筛选并添加到用户词典
-		Data_PreProcessing.getNewWordFrequency();
+//		Data_PreProcessing.getNewWordFrequency();//将发现的新词按照词频排序导出到txt
 //		Data_PreProcessing.addUserDicFromTxt();//添加用户词典
 		
 		//游记数据清理
@@ -50,6 +50,7 @@ public class Disney {
 		
 		//点评数据清理
 //		Data_PreProcessing.dianping_ZHConverter();//将点评中的繁体字转为简体字
+//		Data_PreProcessing.dianping_deleteTimeAndOthers();//将点评中一些时间、表情等去除
 		
 		//点评数据处理
 //		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
@@ -60,7 +61,7 @@ public class Disney {
 		
 		//将训练集输出到txt，以便于python使用
 //		Data_Training.DataTraining2Txt();
-//		Data_Training.DataMiddle2Txt();
+		Data_Training.DataMiddle2Txt();
 		
 //		test.test();
 	}

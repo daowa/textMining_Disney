@@ -124,7 +124,7 @@ public class NLPIR {
 	}
 	
 	public static String getNewWord(String rawString) throws IOException{
-		return CLibrary.Instance.NLPIR_GetNewWords(rawString, 20, false);
+		return CLibrary.Instance.NLPIR_GetNewWords(rawString, 50, false);
 	}
 	
 }

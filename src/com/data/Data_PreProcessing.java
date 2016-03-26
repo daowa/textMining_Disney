@@ -203,7 +203,26 @@ public class Data_PreProcessing {
 			if(DBFunction.updateDianPingContent(id, newContent) > 0)
 				U.print("id为" + id + "的点评修改成功");
 		}
-		U.print("done");
+		U.print("已将点评中的繁体字转换为简体字");
+	}
+	//将点评中一些时间、表情等去除
+	public static void dianping_deleteTimeAndOthers() throws SQLException{
+		ResultSet rs = DBFunction.selectAllFromDianPing();
+		while(rs.next()){
+			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			String content = rs.getString(MyStatic.KEY_Content);
+			//去除形如2013-09-1813:32:00格式的时间
+			content = content.replaceAll("[0-9]{4}-[0-9]{2}-[0-9]{4}:[0-9]{2}:[0-9]{2}", "");
+			//去除形如Day3格式的日期
+			content = content.replaceAll("Day[0-9]", "");
+			//去除形如[大笑]的表情
+			content = content.replaceAll("\\[[\u4E00-\u9FA5]{2}\\]", "");
+			//去除形如5-24的数字格式（日期或地区）s
+			content = content.replaceAll("[0-9]{1,2}-[0-9]{1,2}", "");
+			if(DBFunction.updateDianPingContent(id, content) > 0)
+				U.print("id为" + id + "的点评修改成功");
+		}
+		U.print("已将点评中一些时间、表情等去除");
 	}
 	
 	//输出点评文本，用nlpir的软件发现新词，然后人工筛选加入用户词典

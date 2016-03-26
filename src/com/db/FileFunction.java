@@ -207,6 +207,28 @@ public class FileFunction {
 		fw.close();
 		U.print("训练集Y输出完成");
 	}
+	//将训练集中的y的值（词名）输出到txt
+	public static void writeTrainingSetWord(List<String> listWord) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingWord.txt");
+		for(int i = 0; i < listWord.size(); i++){
+			fw.write(listWord.get(i) + "");
+			if(i != listWord.size()-1)
+				fw.write("\r\n");
+		}
+		fw.close();
+		U.print("训练集Word输出完成");
+	}
+	//将训练集的id输出到txt
+	public static void writeTrainingID(List<Integer> listID) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingID.txt");
+		for(int i = 0; i < listID.size(); i++){
+			fw.write(listID.get(i) + "");
+			if(i != listID.size()-1)
+				fw.write("\r\n");
+		}
+		fw.close();
+		U.print("训练集ID输出完成");
+	}
 	
 	//输出middle的特征值
 	public static void writeEveryMiddleFeature(List<List<Double>> listX, int id) throws IOException{
