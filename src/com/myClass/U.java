@@ -172,21 +172,21 @@ public class U {
 	
 	//将词性用数字表示
 	public static int wordCharacters2Int(String ch){
-		if(ch.matches("/nr.*"))
+		if(ch.matches("/n.*"))
 			return 1;
-		else if(ch.matches("/ns.*"))
-			return 2;
-		else if(ch.matches("/n.*"))
-			return 3;
-		else if(ch.matches("/t.*"))
-			return 4;
-		else if(ch.matches("/s.*"))
-			return 5;
-		else if(ch.matches("/f.*"))
-			return 6;
-		else if(ch.matches("/v.*"))
-			return 7;
 		else if(ch.matches("/a.*"))
+			return 2;
+		else if(ch.matches("/v.*"))
+			return 3;
+		else if(ch.matches("/nr.*"))
+			return 4;
+		else if(ch.matches("/ns.*"))
+			return 5;
+		else if(ch.matches("/t.*"))
+			return 6;
+		else if(ch.matches("/s.*"))
+			return 7;
+		else if(ch.matches("/f.*"))
 			return 8;
 		else if(ch.matches("/b.*"))
 			return 9;
@@ -220,7 +220,7 @@ public class U {
 			return 23;
 		else if(ch.matches("/w.*"))
 			return 24;
-		return -1;
+		return 25;
 	}
 	
 	//繁体字转简体字

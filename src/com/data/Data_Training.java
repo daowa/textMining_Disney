@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import com.db.DBFunction;
@@ -19,7 +20,7 @@ public class Data_Training {
 
 	public static void humanIndexing() throws SQLException{
 		
-		ResultSet rs = DBFunction.getRandomDianPing(50, 35656, 70921);
+		ResultSet rs = DBFunction.getRandomDianPing(200, 106844, 142437);
 		while(rs.next()){
 			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String content = rs.getString(MyStatic.KEY_Content);
@@ -78,48 +79,84 @@ public class Data_Training {
 		List<Integer> listY = new ArrayList<Integer>();//存是否是关键词
 		List<String> listWord = new ArrayList<String>();//存关键词
 		List<Integer> listID = new ArrayList<Integer>();//存测试集id
+		List<String> listTFIDF = new ArrayList<String>();//存tfidf最高的n个词
+		List<String> listFrequency = new ArrayList<String>();//存词频最高的n个词（如果同样高，则取现出现的）
 		
 		while(rs.next()){
 			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			listID.add(id);//存id
 			
-			String[] keywords = rs.getString(MyStatic.KEY_Keyword).split(",");
+			String keywordsLine = rs.getString(MyStatic.KEY_Keyword);
+			listWord.add(keywordsLine);//存关键词
+			
+			String[] keywords = keywordsLine.split(",");
 			List<String> listKeys = new ArrayList<String>();
 			listKeys = Arrays.asList(keywords);
 			
-			String line = "";
-			for(String keyword : keywords){
-				line += keyword + ",";
-			}
-			listWord.add(line.substring(0, line.length()-1));//存关键词
-			
+			//获取每个词的特征
 			String stats = DBFunction.getFeature(rs.getInt(MyStatic.KEY_ID_rawDianPing));
 			Map<String, Vector<String>> map = U.string2Map(stats);
+//			U.print(0 + map.toString());
+			
+			String topWords = getTopWords(map, 3, MyStatic.Index_TFIDF);
+			listTFIDF.add(topWords);//存topTFIDF
+			U.print(topWords);
+//			U.print(1 + map.toString());
+//			map = U.string2Map(stats);//好怪，map传参数过去就被改变了？！没有复制一个map的副本？！(再次实验发现没问题？！)
+//			U.print(2 + map.toString());
+			
+			listFrequency.add(getTopWords(map, 3, MyStatic.Index_WordFrequency));//存top词频
+//			U.print(3 + map.toString());
+//			map = U.string2Map(stats);
+//			U.print(4 + map.toString());
+			
 			for(String key : map.keySet()){
-				
+				//仅保留形容词之前的词
+				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 7)
+					continue;
 				//存X
 				List<Double> listx = new ArrayList<Double>();//存单个词特征
 				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_TFIDF)));
 				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_Position_FirstWord)));
-//				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
+				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
 				listx.add((double)U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)));
 				listX.add(listx);
-				
 				//存Y
 				if(listKeys.contains(key))
 					listY.add(1);
 				else
 					listY.add(0);
-				
 			}
 		}
 		
 		FileFunction.writeTrainingSetX(listX);
 		FileFunction.writeTrainingSetY(listY);
 		FileFunction.writeTrainingSetWord(listWord);
-		FileFunction.writeTrainingID(listID);
-		
+		FileFunction.writeTrainingSetID(listID);
+		FileFunction.writeTrainingSetTopTFIDF(listTFIDF);
+		FileFunction.writeTrainingSetTopFrequency(listFrequency);
 	}
+	//获取最高频的n个词（tfidf或词频），便于对比分类器和tf-idf等方法的效果
+	private static String getTopWords(Map<String, Vector<String>> map, int topN, int topWhat){
+		//找出最高的topN个词
+		//不管了直接扫描过去了
+		String result = "";
+		for(int i = 0; i < topN; i++){
+			double maxWhat = 0;
+			String maxKey = "";
+			for(String key : map.keySet()){
+				if(Double.parseDouble(map.get(key).get(topWhat)) > maxWhat){//仅大于才行，也就是说先出现的词有优势
+					maxWhat = Double.parseDouble(map.get(key).get(topWhat));
+					maxKey = key;
+				}
+			}
+			map.remove(maxKey);
+			result += maxKey + ",";
+		}
+		result = result.substring(0, result.length()-1);
+		return result;
+	}
+	
 	//将middle中的内容输出到txt中，以供python使用(注意确保特征字段和测试集的一致)
 	public static void DataMiddle2Txt() throws SQLException, IOException{
 		ResultSet rs = DBFunction.selectAllFromMiddle();
@@ -133,14 +170,14 @@ public class Data_Training {
 			for(String key : map.keySet()){
 				
 				//仅保留形容词之前的词
-				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 8)
+				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 7)
 					continue;
 				
 				//存X
 				List<Double> listx = new ArrayList<Double>();//存单个词特征
 				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_TFIDF)));
 				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_Position_FirstWord)));
-//				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
+				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
 				listx.add((double)U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)));
 				listX.add(listx);
 				

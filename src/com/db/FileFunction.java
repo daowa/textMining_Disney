@@ -7,11 +7,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.data.NLPIR;
 import com.myClass.MyStatic;
 import com.myClass.U;
 
@@ -179,6 +181,20 @@ public class FileFunction {
 		fw.close();
 		U.print("新词词频已输出到E:\\work\\迪士尼\\vocabulary\\newword_frequency.txt");
 	}
+	//读取同义词表
+	public static List<List<String>> getSynonym() throws IOException{
+		List<List<String>> synonym = new ArrayList<List<String>>();
+		File file = new File("E:\\work\\迪士尼\\vocabulary\\synonym.txt");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = "";
+		while((line = reader.readLine()) != null){
+			line = line.trim();
+			String s[] = line.split(",");
+			List<String> list = Arrays.asList(s);
+			synonym.add(list);
+		}
+		return synonym;
+	}
 	
     //将训练集中的x输出到txt
 	public static void writeTrainingSetX(List<List<Double>> listX) throws IOException{
@@ -219,7 +235,7 @@ public class FileFunction {
 		U.print("训练集Word输出完成");
 	}
 	//将训练集的id输出到txt
-	public static void writeTrainingID(List<Integer> listID) throws IOException{
+	public static void writeTrainingSetID(List<Integer> listID) throws IOException{
 		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingID.txt");
 		for(int i = 0; i < listID.size(); i++){
 			fw.write(listID.get(i) + "");
@@ -229,6 +245,28 @@ public class FileFunction {
 		fw.close();
 		U.print("训练集ID输出完成");
 	}
+	//将训练集TFIDF最高的几个词输出到txt
+	public static void writeTrainingSetTopTFIDF(List<String> list) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingTopTFIDF.txt");
+		for(int i = 0; i < list.size(); i++){
+			fw.write(list.get(i));
+			if(i != list.size()-1)
+				fw.write("\r\n");
+		}
+		fw.close();
+		U.print("训练集topTFIDF输出完成");
+	}
+	//将训练集词频最高的几个词输出到txt
+		public static void writeTrainingSetTopFrequency(List<String> list) throws IOException{
+			FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\trainingTopFrequency.txt");
+			for(int i = 0; i < list.size(); i++){
+				fw.write(list.get(i));
+				if(i != list.size()-1)
+					fw.write("\r\n");
+			}
+			fw.close();
+			U.print("训练集topFrequency输出完成");
+		}
 	
 	//输出middle的特征值
 	public static void writeEveryMiddleFeature(List<List<Double>> listX, int id) throws IOException{

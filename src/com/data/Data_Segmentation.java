@@ -151,7 +151,8 @@ public class Data_Segmentation {
 		U.print("开始统计idf");
 		//获取idf
 		for (Entry<String, Float> entry : mapIDF.entrySet()) {
-			float idf = (float)Math.log(documentCount/entry.getValue());
+			//如果一个词越常见，那么分母就越大，逆文档频率就越小越接近0。log表示对得到的值取对数
+			float idf = (float)Math.log(documentCount/(entry.getValue()));
 			entry.setValue(idf);
 		}
 		U.print("idf统计完毕");
@@ -163,7 +164,7 @@ public class Data_Segmentation {
 		String[] words = NLPIR.wordSegmentateWithCharacteristic(content);
 		List<String> stopWords = NLPIR.getStopWords();
 		Map<String, Vector<String>> map = new HashMap<String, Vector<String>>();//用键值对的方式存 词-词特征
-		int firstPosition = 0;//记录这时读到了第几个字（去除停用词）
+		int firstPosition = 0;//记录这时读到了第几个字（去除停用词后）
 		
 		//统计当前游记中出现的词数（去停用词）
 		int allWordCount = 0;
@@ -189,7 +190,7 @@ public class Data_Segmentation {
 					v.add(MyStatic.Index_TFIDF, "-1");
 					v.add(MyStatic.Index_WordCharacteristic, characteristic);//初始化时直接设置词性
 					v.add(MyStatic.Index_WordLength, word.length() + "");
-					v.add(MyStatic.Index_Position_FirstWord, firstPosition + "");
+					v.add(MyStatic.Index_Position_FirstWord, (float)(firstPosition)/(allWordCount) + "");//相对的位置
 				}
 				//计算词出现数
 				int wordCount = (v.get(MyStatic.Index_WordCount) != "-1") ? Integer.parseInt(v.get(MyStatic.Index_WordCount))+1 : 1;
@@ -200,7 +201,7 @@ public class Data_Segmentation {
 				map.put(word, v);
 				//计算tf-idf
 				float idf = mapIDF.get(word) != null ? mapIDF.get(word) : 0;
-				v.set(MyStatic.Index_TFIDF, wordFrequency/wordsLength * idf + "");
+				v.set(MyStatic.Index_TFIDF, wordFrequency * idf + "");
 				
 				firstPosition += word.length();//(去除停用词后)移动前向距离
 			}

@@ -51,6 +51,7 @@ public class Disney {
 		//点评数据清理
 //		Data_PreProcessing.dianping_ZHConverter();//将点评中的繁体字转为简体字
 //		Data_PreProcessing.dianping_deleteTimeAndOthers();//将点评中一些时间、表情等去除
+//		Data_PreProcessing.dianping_synonym();//同义词归并s
 		
 		//点评数据处理
 //		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
@@ -58,9 +59,11 @@ public class Disney {
 		
 		//人工标引训练集
 //		Data_Training.humanIndexing();
+//		Data_PreProcessing.trainingSet_synonym();//尽量别用，可能就找不到原来词的特征了；或者要求和同义词归并同时做
 		
 		//将训练集输出到txt，以便于python使用
-//		Data_Training.DataTraining2Txt();
+		//更换特征的时候应该两个都进行更新
+		Data_Training.DataTraining2Txt();
 		Data_Training.DataMiddle2Txt();
 		
 //		test.test();

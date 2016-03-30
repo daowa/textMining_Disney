@@ -346,6 +346,22 @@ public class DBFunction {
     	i = ps.executeUpdate();
     	return i;
     }
+    
+    //更新训练集的内容
+    public static int updateTrainingSetContent(int id, String content){
+    	String sql = "update " + MyStatic.TABLE_TrainingSet + " set " + MyStatic.KEY_Keyword + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    	int count = 0;
+    	try{
+    		PreparedStatement ps = cnn.prepareStatement(sql);
+    		ps.setString(1, content);
+    		ps.setInt(2, id);
+    		count = ps.executeUpdate();
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return count;
+    }
 
     //获取标引的测试集数据中的所有记录
     public static ResultSet selectAllFromTrainingSet(){

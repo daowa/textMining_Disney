@@ -219,10 +219,66 @@ public class Data_PreProcessing {
 			content = content.replaceAll("\\[[\u4E00-\u9FA5]{2}\\]", "");
 			//去除形如5-24的数字格式（日期或地区）s
 			content = content.replaceAll("[0-9]{1,2}-[0-9]{1,2}", "");
+			//去除"阅读全部"等词
+			content = content.replaceAll("阅读全部", "");
+			//去除如下字母
+			content = content.replaceAll("&#183;", "");
+			//去除形如 评论(0) 的字母
+			content = content.replaceAll("评论([0-9]*)", "");
+			content = content.replaceAll("分享([0-9]*)", "");
+			content = content.replaceAll("喜欢([0-9]*)", "");
 			if(DBFunction.updateDianPingContent(id, content) > 0)
 				U.print("id为" + id + "的点评修改成功");
 		}
 		U.print("已将点评中一些时间、表情等去除");
+	}
+	//同义词归并
+	public static void dianping_synonym() throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromDianPing();
+		List<List<String>> synonym = FileFunction.getSynonym();
+		while(rs.next()){
+			boolean needSynonmy = false;
+			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			String content = rs.getString(MyStatic.KEY_Content);
+			for(List<String> list : synonym){
+				for(int i = 0; i < list.size(); i++){
+					if(i!=0 && content.contains(list.get(i))){
+						needSynonmy = true;
+						content = content.replaceAll(list.get(i), list.get(0));
+						U.print(list.get(i));
+					}
+				}
+			}
+			if(needSynonmy){
+				if(DBFunction.updateDianPingContent(id, content) > 0)
+					U.print("id为" + id + "的点评同义词归并成功");
+			}
+		}
+		U.print("已归并同义词");
+	}
+	//对训练集中的词也进行同义词归并
+	public static void trainingSet_synonym() throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromTrainingSet();
+		List<List<String>> synonym = FileFunction.getSynonym();
+		while(rs.next()){
+			boolean needSynonmy = false;
+			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			String content = rs.getString(MyStatic.KEY_Keyword);
+			for(List<String> list : synonym){
+				for(int i = 0; i < list.size(); i++){
+					if(i!=0 && content.contains(list.get(i))){
+						needSynonmy = true;
+						content = content.replaceAll(list.get(i), list.get(0));
+						U.print(list.get(i));
+					}
+				}
+			}
+			if(needSynonmy){
+				if(DBFunction.updateTrainingSetContent(id, content) > 0)
+					U.print("id为" + id + "的点评同义词归并成功");
+			}
+		}
+		U.print("已归并同义词");
 	}
 	
 	//输出点评文本，用nlpir的软件发现新词，然后人工筛选加入用户词典
@@ -296,8 +352,11 @@ public class Data_PreProcessing {
 			line = line.trim();
 			String s[] = line.split("\t");
 			NLPIR.addUserDict(s[0], s[1]);
+			U.print(line);
 		}
+		CLibrary.Instance.NLPIR_SaveTheUsrDic();
 		NLPIR.NlpirExit();
+		U.print("添加用户词典完成");
 	}
 	
 	
