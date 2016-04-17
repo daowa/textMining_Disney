@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -18,8 +19,7 @@ import com.myClass.U;
 
 public class Data_Training {
 
-	public static void humanIndexing() throws SQLException{
-		
+	public static void humanIndexing(int version, int wordCount) throws SQLException{
 		ResultSet rs = DBFunction.getRandomDianPing(200, 106844, 142437);
 		while(rs.next()){
 			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
@@ -29,34 +29,41 @@ public class Data_Training {
 			Map<String, Vector<String>> map = DBFunction.getDianPingStats(id);
 			U.print("词统计:" + map.toString());
 			
-			if(DBFunction.DianPing_isIndexed(id)) continue;//如果已经标引过，则不用再标引s
+			if(DBFunction.DianPing_isIndexed(version, id)) continue;//如果已经标引过，则不用再标引s
 			
 			//输入标引的关键词
-			int wordCount = 3;//限制关键词数
 			while(true){
-				U.print(">>请输入" + wordCount + "个词，以空格分隔(记得将光标手动定位到下一行，否则会出现异常)(输入pass跳过该条)");
+				if(version == MyStatic.Version_HUMINDEX_1)
+					U.print(">>请输入" + wordCount + "个词，以空格分隔(记得将光标手动定位到下一行，否则会出现异常)(输入pass跳过该条)");
+				else
+					U.print(">>请输入至多" + wordCount + "个词，以空格分隔(记得将光标手动定位到下一行，否则会出现异常)(输入pass跳过该条)");
 				Scanner sc = new Scanner(System.in);
 				String order = sc.nextLine();
 				if(order.equals("pass"))//输入pass，跳过该条
 					break;
 				String[] keywords = order.split(" ");
 				//检查输入格式
-				if(keywords.length != wordCount){
-					U.print("输入格式错误,可能不是" + wordCount + "个词");
+				if(version == MyStatic.Version_HUMINDEX_1 && keywords.length != wordCount){
+					U.print("输入格式错误,不是" + wordCount + "个词");
+					continue;//输入格式错误，则重新输入
+				}
+				else if(version == MyStatic.Version_HUMINDEX_2 && keywords.length > wordCount){
+					U.print("输入格式错误,超过了" + wordCount + "个词");
 					continue;//输入格式错误，则重新输入
 				}
 				else{
 					//检查输入的词是否为分词结果中的词
-					int passCount = 0;//全部通过才不需要重新输入
+					boolean pass = true;
 					for(String word : keywords){
-						if(!map.containsKey(word))
+						if(!map.containsKey(word)){
+							pass = false;
 							U.print(word + "并不在分词结果内");
-						else 
-							passCount++;
+						}
 					}
+					if(!pass) continue;
 					//如果输入的词满足条件了，则入库
-					if(passCount == wordCount){
-						if(DBFunction.insertTrainingSet(id, keywords) > 0){
+					if(keywords.length <= wordCount){
+						if(DBFunction.insertTrainingSet(version, id, keywords) > 0){
 							U.print("插入数据库成功");
 							U.print("=================  done  =================");
 						}
@@ -67,14 +74,11 @@ public class Data_Training {
 				}
 			}
 		}
-		
 	}
 	
-	
-	
 	//将测试集中的内容输出到txt中，以供python使用
-	public static void DataTraining2Txt() throws SQLException, IOException{
-		ResultSet rs = DBFunction.selectAllFromTrainingSet();
+	public static void DataTraining2Txt(int version) throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromTrainingSet(version);
 		List<List<Double>> listX = new ArrayList<List<Double>>();//存所有词特征
 		List<Integer> listY = new ArrayList<Integer>();//存是否是关键词
 		List<String> listWord = new ArrayList<String>();//存关键词
@@ -92,40 +96,50 @@ public class Data_Training {
 			String[] keywords = keywordsLine.split(",");
 			List<String> listKeys = new ArrayList<String>();
 			listKeys = Arrays.asList(keywords);
+			U.print(listKeys.toString());
 			
 			//获取每个词的特征
 			String stats = DBFunction.getFeature(rs.getInt(MyStatic.KEY_ID_rawDianPing));
 			Map<String, Vector<String>> map = U.string2Map(stats);
-//			U.print(0 + map.toString());
 			
 			String topWords = getTopWords(map, 3, MyStatic.Index_TFIDF);
 			listTFIDF.add(topWords);//存topTFIDF
-			U.print(topWords);
-//			U.print(1 + map.toString());
-//			map = U.string2Map(stats);//好怪，map传参数过去就被改变了？！没有复制一个map的副本？！(再次实验发现没问题？！)
-//			U.print(2 + map.toString());
+			map = U.string2Map(stats);//好怪，map传参数过去就被改变了？！没有复制一个map的副本？！(再次实验发现没问题？！)
 			
 			listFrequency.add(getTopWords(map, 3, MyStatic.Index_WordFrequency));//存top词频
-//			U.print(3 + map.toString());
-//			map = U.string2Map(stats);
-//			U.print(4 + map.toString());
+			map = U.string2Map(stats);
 			
+			//第一遍遍历，仅收录关键词，并统计关键词数量
+			int countKeys = 0;
 			for(String key : map.keySet()){
 				//仅保留形容词之前的词
-				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 7)
+				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 7) continue;
+				//仅收录关键词
+				if(!listKeys.contains(key)) continue;
+				listX.add(getListx(map.get(key)));//存X
+				listY.add(1);//存Y
+				countKeys ++;
+			}
+			U.print(countKeys + "");
+			
+			//第二遍遍历，仅收录同数量的非关键词
+			int mapSize = map.size();
+			String[] temp = {"test", "test"};
+			String[] s2 = map.keySet().toArray(temp);
+			int randomCount = 0;//计算随机了几次，超过一定次数就跳出（可能出现非关键词<关键词数的情况，造成while无法跳出）
+			while(countKeys > 0){
+				if(randomCount++ > 10) break;
+				Random r = new Random();
+				int random = (int)r.nextInt(mapSize);
+				//仅保留形容词之前的词
+				if(U.wordCharacters2Int(map.get(s2[random]).get(MyStatic.Index_WordCharacteristic)) > 7)
 					continue;
-				//存X
-				List<Double> listx = new ArrayList<Double>();//存单个词特征
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_TFIDF)));
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_Position_FirstWord)));
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
-				listx.add((double)U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)));
-				listX.add(listx);
-				//存Y
-				if(listKeys.contains(key))
-					listY.add(1);
-				else
+				//仅收录非关键词
+				if(!listKeys.contains(s2[random])){
+					listX.add(getListx(map.get(s2[random])));
 					listY.add(0);
+					countKeys --;
+				}
 			}
 		}
 		
@@ -168,19 +182,11 @@ public class Data_Training {
 			List<List<Double>> listX = new ArrayList<List<Double>>();//存词特征
 			List<String> listW = new ArrayList<String>();//存词名
 			for(String key : map.keySet()){
-				
 				//仅保留形容词之前的词
 				if(U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)) > 7)
 					continue;
-				
 				//存X
-				List<Double> listx = new ArrayList<Double>();//存单个词特征
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_TFIDF)));
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_Position_FirstWord)));
-				listx.add(Double.parseDouble(map.get(key).get(MyStatic.Index_WordLength)));
-				listx.add((double)U.wordCharacters2Int(map.get(key).get(MyStatic.Index_WordCharacteristic)));
-				listX.add(listx);
-				
+				listX.add(getListx(map.get(key)));
 				//存词
 				listW.add(key);
 				
@@ -189,5 +195,17 @@ public class Data_Training {
 			FileFunction.writeEveryMiddleWord(listW, id);
 		}
 		U.print("middle中的数值与词名已输出到txt");
+	}
+	
+	private static List<Double> getListx(Vector<String> vector){
+		List<Double> listx = new ArrayList<Double>();//存单个词特征
+//		listx.add(Double.parseDouble(vector.get(MyStatic.Index_WordCount)));
+		listx.add(Double.parseDouble(vector.get(MyStatic.Index_TFIDF)));
+//		listx.add(Double.parseDouble(vector.get(MyStatic.Index_Position_FirstWord)));
+//		listx.add(Double.parseDouble(vector.get(MyStatic.Index_Position_LastWord)));
+		listx.add(Double.parseDouble(vector.get(MyStatic.Index_Position_Absolute)));
+		listx.add(Double.parseDouble(vector.get(MyStatic.Index_WordLength)));
+		listx.add((double)U.wordCharacters2Int(vector.get(MyStatic.Index_WordCharacteristic)));
+		return listx;
 	}
 }

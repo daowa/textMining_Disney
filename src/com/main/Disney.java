@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.data.Data_Analysis;
 import com.data.Data_PreProcessing;
 import com.data.Data_Segmentation;
 import com.data.Data_Training;
@@ -51,20 +52,23 @@ public class Disney {
 		//点评数据清理
 //		Data_PreProcessing.dianping_ZHConverter();//将点评中的繁体字转为简体字
 //		Data_PreProcessing.dianping_deleteTimeAndOthers();//将点评中一些时间、表情等去除
-//		Data_PreProcessing.dianping_synonym();//同义词归并s
+//		Data_PreProcessing.dianping_synonym();//同义词归并
 		
 		//点评数据处理
 //		Data_Segmentation.DianPing_WordFrequency();//获取每篇的词频和总的词频
 //		Data_Segmentation.DianPing_WordFeature();//分词、粗降维、存储词特征、放入中间数据库
 		
 		//人工标引训练集
-//		Data_Training.humanIndexing();
-//		Data_PreProcessing.trainingSet_synonym();//尽量别用，可能就找不到原来词的特征了；或者要求和同义词归并同时做
+//		Data_Training.humanIndexing(MyStatic.Version_HUMINDEX_2, 5);
+//		Data_PreProcessing.trainingSet_synonym(MyStatic.Version_HUMINDEX_2);//尽量别用，可能就找不到原来词的特征了；或者要求和同义词归并同时做
 		
 		//将训练集输出到txt，以便于python使用
 		//更换特征的时候应该两个都进行更新
-		Data_Training.DataTraining2Txt();
-		Data_Training.DataMiddle2Txt();
+//		Data_Training.DataTraining2Txt(MyStatic.Version_HUMINDEX_2);
+//		Data_Training.DataMiddle2Txt();
+		
+//		Data_Analysis.outputKeyWordCounts();//输出关键词的词频统计等信息
+		Data_Analysis.outputGraphTxt(150);//输出关键词网络图（.net）
 		
 //		test.test();
 	}

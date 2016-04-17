@@ -132,7 +132,7 @@ public class Data_Segmentation {
 			
 			String content = rs.getString(MyStatic.KEY_Content);
 			U.print("content:" + content);
-			String[] words = NLPIR.wordSegmentateWithoutCharacteristic(content);
+			String[] words = U.dereplication(NLPIR.wordSegmentateWithoutCharacteristic(content));
 			List<String> stopWords = NLPIR.getStopWords();
 
 			for(String word : words){
@@ -164,7 +164,7 @@ public class Data_Segmentation {
 		String[] words = NLPIR.wordSegmentateWithCharacteristic(content);
 		List<String> stopWords = NLPIR.getStopWords();
 		Map<String, Vector<String>> map = new HashMap<String, Vector<String>>();//用键值对的方式存 词-词特征
-		int firstPosition = 0;//记录这时读到了第几个字（去除停用词后）
+		int position = 0;//记录这时读到了第几个字（去除停用词后）
 		
 		//统计当前游记中出现的词数（去停用词）
 		int allWordCount = 0;
@@ -190,20 +190,28 @@ public class Data_Segmentation {
 					v.add(MyStatic.Index_TFIDF, "-1");
 					v.add(MyStatic.Index_WordCharacteristic, characteristic);//初始化时直接设置词性
 					v.add(MyStatic.Index_WordLength, word.length() + "");
-					v.add(MyStatic.Index_Position_FirstWord, (float)(firstPosition)/(allWordCount) + "");//相对的位置
+					v.add(MyStatic.Index_Position_FirstWord, (float)(position)/(allWordCount) + "");//相对的位置
+					v.add(MyStatic.Index_Position_LastWord, "0.0");//先暂时初始化为0.0
+					v.add(MyStatic.Index_Position_Absolute, "0.0");//先暂时初始化为0.0
 				}
 				//计算词出现数
 				int wordCount = (v.get(MyStatic.Index_WordCount) != "-1") ? Integer.parseInt(v.get(MyStatic.Index_WordCount))+1 : 1;
 				v.set(MyStatic.Index_WordCount, wordCount + "");
-				//计算词频
-				float wordFrequency = (float)wordCount/allWordCount;
-				v.set(MyStatic.Index_WordFrequency, wordFrequency + "");
+				//计算词频,不除以总词数了，因为训练中是以词而不是以文本进行训练的，除以总词数会让短文本的tf上升
+				float tf = (float)wordCount;
+				v.set(MyStatic.Index_WordFrequency, tf + "");
 				map.put(word, v);
 				//计算tf-idf
 				float idf = mapIDF.get(word) != null ? mapIDF.get(word) : 0;
-				v.set(MyStatic.Index_TFIDF, wordFrequency * idf + "");
+				v.set(MyStatic.Index_TFIDF, tf * idf + "");
+				//每次都更新lastPosition
+				v.set(MyStatic.Index_Position_LastWord, (float)(position)/(allWordCount) + "");
+				//每次都更新absolutePosition,取最小的距离
+				v.set(MyStatic.Index_Position_Absolute, 
+					Float.parseFloat(v.get(MyStatic.Index_Position_FirstWord)) < Float.parseFloat(v.get(MyStatic.Index_Position_Absolute)) ? 
+					v.get(MyStatic.Index_Position_FirstWord) : v.get(MyStatic.Index_Position_Absolute));
 				
-				firstPosition += word.length();//(去除停用词后)移动前向距离
+				position += word.length();//(去除停用词后)移动前向距离
 			}
 		}
 		return map;

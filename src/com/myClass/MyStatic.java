@@ -18,7 +18,8 @@ public class MyStatic {
 //	public final static String TABLE_WenDa = "test_wenda";
 	
 	public final static String TABLE_Middle = "middle";
-	public final static String TABLE_TrainingSet = "training_set";
+	public final static String TABLE_TrainingSet = "training_set";//固定关键词数的人工标引训练集
+	public final static String TABLE_TrainingSet2 = "training_set2";//不固定关键词数的人工标引训练集
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";
@@ -59,7 +60,6 @@ public class MyStatic {
 	public final static String WebFrom_QiongYou = "穷游网";
 	public final static String WebFrom_QuNaEr = "去哪儿";
 	
-	
 	public final static String City_HongKong = "香港";
 	public final static String City_Tokyo = "东京";
 	public final static String City_Paris = "巴黎";
@@ -76,9 +76,15 @@ public class MyStatic {
 	public final static int Index_WordCharacteristic = 3;//词性
 	public final static int Index_WordLength = 4;//词长（可以直接key.length，但是不统一，所以增加空间存储量统一下代码）
 	public final static int Index_Position_FirstWord = 5;//第一次出现在第几个字（去停用词）
+	public final static int Index_Position_LastWord = 6;//最后一次出现在第几个字（去停用词）
+	public final static int Index_Position_Absolute = 7;//出现词距离首尾的最短距离/文本长度，即越前或越后的词越好
 	
 	public final static String Others_Line = "————————————————————————————————————————————————————————";
 	
 	//多少篇点评行程一个文档，输出以提取新词
 	public final static int SIZE_DianPingSet = 5000;
+	
+	//人工标引关键词的方式，1版本表示固定关键词数，2版本表示不固定关键词数
+	public final static int Version_HUMINDEX_1 = 1;
+	public final static int Version_HUMINDEX_2 = 2;
 }

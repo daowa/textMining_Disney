@@ -2,10 +2,12 @@ package com.db;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +65,39 @@ public class FileFunction {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
+			//以行为单位读取关键词
+			String s = "";
+			while((s = reader.readLine()) != null){
+				s = s.trim();
+				if(!s.isEmpty() && s != "")
+					list.add(s);
+			}
+			reader.close();
+		} 
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(reader != null)
+					reader.close();
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+	
+	public static List<String> readTxt_Keywords(String txtAddress) throws FileNotFoundException{
+		List<String> list = new ArrayList<String>();
+		File file = new File(txtAddress);
+		FileInputStream in = new FileInputStream(file);  
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			//以行为单位读取关键词
 			String s = "";
 			while((s = reader.readLine()) != null){
@@ -293,5 +328,17 @@ public class FileFunction {
 	    }   
 	    fw.close(); 
 	    U.print("id为" + id + "的记录原词输出完成");
+	}
+	
+	//将关键词的词频统计输出到txt
+	public static void Keywords_outputKeywordsFrequency(TreeMap<String, Integer> map) throws IOException{
+		FileWriter fw = new FileWriter("E:\\work\\迪士尼\\output\\keywords_frequency.txt");
+		Set<Entry<String, Integer>> set = map.entrySet();
+		for(Entry<String, Integer> i : set){
+			fw.write(i.getKey() + "\t" + i.getValue());
+			fw.write("\r\n");
+		}
+		fw.close();
+		U.print("新词词频已输出到E:\\work\\迪士尼\\output\\keywords_frequency.txt");
 	}
 }

@@ -310,8 +310,9 @@ public class DBFunction {
     	return rs;
     }
     //选择该待标引的点评之前并没有标引过
-    public static boolean DianPing_isIndexed(int id) throws SQLException{
-    	String sql = "select * from " + MyStatic.TABLE_TrainingSet + " where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    public static boolean DianPing_isIndexed(int version, int id) throws SQLException{
+    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
+    	String sql = "select * from " + table + " where " + MyStatic.KEY_ID_rawDianPing + " =?";
     	PreparedStatement ps = cnn.prepareStatement(sql);
     	ps.setInt(1, id);
     	ResultSet rs = ps.executeQuery();
@@ -332,9 +333,10 @@ public class DBFunction {
     }
     
     //将标引的关键词写入数据库
-    public static int insertTrainingSet(int id, String[] keywords) throws SQLException{
+    public static int insertTrainingSet(int version, int id, String[] keywords) throws SQLException{
     	int i = 0;
-    	String sql = "insert into " + MyStatic.TABLE_TrainingSet + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Keyword + ") value(?,?)";
+    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
+    	String sql = "insert into " + table + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Keyword + ") value(?,?)";
     	String s_keywords = "";//将keywords的list转化成 a,b,c 的形式，便于下次出库的时候的调用
     	for(String word : keywords)
     		s_keywords += word + ",";
@@ -348,8 +350,9 @@ public class DBFunction {
     }
     
     //更新训练集的内容
-    public static int updateTrainingSetContent(int id, String content){
-    	String sql = "update " + MyStatic.TABLE_TrainingSet + " set " + MyStatic.KEY_Keyword + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    public static int updateTrainingSetContent(int version, int id, String content){
+    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
+    	String sql = "update " + table + " set " + MyStatic.KEY_Keyword + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
     	int count = 0;
     	try{
     		PreparedStatement ps = cnn.prepareStatement(sql);
@@ -364,8 +367,9 @@ public class DBFunction {
     }
 
     //获取标引的测试集数据中的所有记录
-    public static ResultSet selectAllFromTrainingSet(){
-    	String sql = "select * from " + MyStatic.TABLE_TrainingSet;  
+    public static ResultSet selectAllFromTrainingSet(int version){
+    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
+    	String sql = "select * from " + table;  
 		try {
 			Statement stmt = cnn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);

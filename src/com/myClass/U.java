@@ -1,11 +1,13 @@
 package com.myClass;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import com.alibaba.fastjson.JSON;
@@ -172,7 +174,7 @@ public class U {
 	
 	//将词性用数字表示
 	public static int wordCharacters2Int(String ch){
-		if(ch.matches("/n.*"))
+		if(ch.matches("/n.*") || ch.matches("/vn.*"))//vn包括管理、回忆等词，记为名词
 			return 1;
 		else if(ch.matches("/a.*"))
 			return 2;
@@ -235,5 +237,13 @@ public class U {
 				.getInstance(ZHConverter.TRADITIONAL);
 		String traditionalStr = converter.convert(simpStr);
 		return traditionalStr;
+	}
+	
+	//去重
+	public static String[] dereplication(String[] s){
+		List<String> list = Arrays.asList(s);
+		Set<String> set = new HashSet<String>(list);
+		String[] result = (String[])set.toArray(new String[0]);
+		return result;
 	}
 }

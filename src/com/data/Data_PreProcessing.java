@@ -257,8 +257,8 @@ public class Data_PreProcessing {
 		U.print("已归并同义词");
 	}
 	//对训练集中的词也进行同义词归并
-	public static void trainingSet_synonym() throws SQLException, IOException{
-		ResultSet rs = DBFunction.selectAllFromTrainingSet();
+	public static void trainingSet_synonym(int version) throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromTrainingSet(version);
 		List<List<String>> synonym = FileFunction.getSynonym();
 		while(rs.next()){
 			boolean needSynonmy = false;
@@ -274,7 +274,7 @@ public class Data_PreProcessing {
 				}
 			}
 			if(needSynonmy){
-				if(DBFunction.updateTrainingSetContent(id, content) > 0)
+				if(DBFunction.updateTrainingSetContent(version, id, content) > 0)
 					U.print("id为" + id + "的点评同义词归并成功");
 			}
 		}
