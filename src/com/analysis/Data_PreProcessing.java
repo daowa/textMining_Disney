@@ -1,4 +1,4 @@
-package com.data;
+package com.analysis;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,9 +17,9 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.data.NLPIR.CLibrary;
-import com.db.DBFunction;
-import com.db.FileFunction;
+import com.analysis.NLPIR.CLibrary;
+import com.data.DBFunction;
+import com.data.FileFunction;
 import com.myClass.MyStatic;
 import com.myClass.U;
 import com.myClass.ValueComparator;
@@ -30,7 +30,7 @@ public class Data_PreProcessing {
 		
 		File file = new File(categoryAddress);
 		String[] webList = file.list();
-		String[] cityList = {MyStatic.City_HongKong, MyStatic.City_California, MyStatic.City_Orlando, MyStatic.City_Paris, MyStatic.City_Tokyo};
+		String[] cityList = {MyStatic.City_HongKong, MyStatic.City_California, MyStatic.City_Orlando, MyStatic.City_Paris, MyStatic.City_Tokyo, MyStatic.City_ShangHai};
 			
 		for(int i = 0; i < webList.length; i++){
 			for(int j = 0; j < cityList.length; j++){
@@ -73,7 +73,6 @@ public class Data_PreProcessing {
 			e.printStackTrace();
 		}
 	}
-	
 	//蚂蜂窝有些游记的城市放错了
 	public static void youji_resetCity(){
 		ResultSet rs = DBFunction.selectAllFromYouJi();
@@ -190,26 +189,34 @@ public class Data_PreProcessing {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
-	//将点评中的繁体字转为简体字
-	public static void dianping_ZHConverter() throws SQLException{
-		ResultSet rs = DBFunction.selectAllFromDianPing();
+	//将繁体字转为简体字
+	public static void ZHConverter(int category) throws SQLException{
+		ResultSet rs = DBFunction.selectAll(category);
 		while(rs.next()){
-			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			int id = -1;
+			if(category == MyStatic.Category_YouJi)
+				id = rs.getInt(MyStatic.KEY_ID_rawYouJi);
+			else if(category == MyStatic.Category_DianPing)
+				id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String rawContent = rs.getString(MyStatic.KEY_Content);
 			String newContent = U.ZHConverter_TraToSim(rawContent);
-			if(DBFunction.updateDianPingContent(id, newContent) > 0)
-				U.print("id为" + id + "的点评修改成功");
+			if(DBFunction.updateContent(category, id, newContent) > 0)
+				U.print("类型:" + category + ", id为" + id + "的记录修改成功");
 		}
-		U.print("已将点评中的繁体字转换为简体字");
+		U.print("已转换为简体字");
 	}
-	//将点评中一些时间、表情等去除
-	public static void dianping_deleteTimeAndOthers() throws SQLException{
-		ResultSet rs = DBFunction.selectAllFromDianPing();
+	
+	//将时间、表情等去除
+	public static void deleteTimeAndOthers(int category) throws SQLException{
+		ResultSet rs = DBFunction.selectAll(category);
 		while(rs.next()){
-			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			int id = -1;
+			if(category == MyStatic.Category_YouJi)
+				id = rs.getInt(MyStatic.KEY_ID_rawYouJi);
+			else if(category == MyStatic.Category_DianPing)
+				id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String content = rs.getString(MyStatic.KEY_Content);
 			//去除形如2013-09-1813:32:00格式的时间
 			content = content.replaceAll("[0-9]{4}-[0-9]{2}-[0-9]{4}:[0-9]{2}:[0-9]{2}", "");
@@ -227,18 +234,23 @@ public class Data_PreProcessing {
 			content = content.replaceAll("评论([0-9]*)", "");
 			content = content.replaceAll("分享([0-9]*)", "");
 			content = content.replaceAll("喜欢([0-9]*)", "");
-			if(DBFunction.updateDianPingContent(id, content) > 0)
-				U.print("id为" + id + "的点评修改成功");
+			if(DBFunction.updateContent(category, id, content) > 0)
+				U.print("类型:" + category + ", id为" + id + "的记录修改成功");
 		}
-		U.print("已将点评中一些时间、表情等去除");
+		U.print("已将时间、表情等去除");
 	}
+	
 	//同义词归并
-	public static void dianping_synonym() throws SQLException, IOException{
-		ResultSet rs = DBFunction.selectAllFromDianPing();
+	public static void synonym(int category) throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAll(category);
 		List<List<String>> synonym = FileFunction.getSynonym();
 		while(rs.next()){
 			boolean needSynonmy = false;
-			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			int id = -1;
+			if(category == MyStatic.Category_YouJi)
+				id = rs.getInt(MyStatic.KEY_ID_rawYouJi);
+			else if(category == MyStatic.Category_DianPing)
+				id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String content = rs.getString(MyStatic.KEY_Content);
 			for(List<String> list : synonym){
 				for(int i = 0; i < list.size(); i++){
@@ -250,19 +262,19 @@ public class Data_PreProcessing {
 				}
 			}
 			if(needSynonmy){
-				if(DBFunction.updateDianPingContent(id, content) > 0)
-					U.print("id为" + id + "的点评同义词归并成功");
+				if(DBFunction.updateContent(category, id, content) > 0)
+					U.print("类型:" + category + ", id为" + id + "的记录同义词归并成功");
 			}
 		}
 		U.print("已归并同义词");
 	}
 	//对训练集中的词也进行同义词归并
-	public static void trainingSet_synonym(int version) throws SQLException, IOException{
-		ResultSet rs = DBFunction.selectAllFromTrainingSet(version);
+	public static void trainingSet_synonym(int category) throws SQLException, IOException{
+		ResultSet rs = DBFunction.selectAllFromTrainingSet(category);
 		List<List<String>> synonym = FileFunction.getSynonym();
 		while(rs.next()){
 			boolean needSynonmy = false;
-			int id = rs.getInt(MyStatic.KEY_ID_rawDianPing);
+			int id = (category == MyStatic.Category_YouJi) ? rs.getInt(MyStatic.KEY_ID_rawYouJi) : rs.getInt(MyStatic.KEY_ID_rawDianPing);
 			String content = rs.getString(MyStatic.KEY_Keyword);
 			for(List<String> list : synonym){
 				for(int i = 0; i < list.size(); i++){
@@ -274,7 +286,7 @@ public class Data_PreProcessing {
 				}
 			}
 			if(needSynonmy){
-				if(DBFunction.updateTrainingSetContent(version, id, content) > 0)
+				if(DBFunction.updateTrainingSetContent(category, id, content) > 0)
 					U.print("id为" + id + "的点评同义词归并成功");
 			}
 		}
@@ -358,6 +370,5 @@ public class Data_PreProcessing {
 		NLPIR.NlpirExit();
 		U.print("添加用户词典完成");
 	}
-	
 	
 }

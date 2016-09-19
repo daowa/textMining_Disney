@@ -16,6 +16,7 @@ import com.spreada.utils.chinese.ZHConverter;
 
 public class U {
 	
+	//判断是否是数字
 	public static boolean isNumeric(String str){
 		if(str == "") return false;
 		for(int i=str.length();--i>=0;){
@@ -25,6 +26,7 @@ public class U {
 		return true;
 	}
 	
+	//解析unicode码
 	public static String decodeUnicode(String theString) {
 		char aChar;      
 	    int len = theString.length();      
@@ -246,4 +248,51 @@ public class U {
 		String[] result = (String[])set.toArray(new String[0]);
 		return result;
 	}
+	
+	//求和
+	public static double MATH_getSum(List<Double> inputData) {
+		if (inputData == null || inputData.size() == 0)
+			return -1;
+		int len = inputData.size();
+		double sum = 0;
+		for (int i = 0; i < len; i++) {
+			sum = sum + inputData.get(i);
+		}
+		return sum;
+	}
+	//求平均数
+	public static double MATH_getAverage(List<Double> inputData) {
+		if (inputData == null || inputData.size() == 0)
+			return -1;
+		int len = inputData.size();
+		double result = MATH_getSum(inputData) / len;;
+		return result;
+	}
+	//求平方和
+	public static double MATH_getSquareSum(List<Double> inputData) {
+		if(inputData==null||inputData.size()==0)
+		    return -1;
+		int len=inputData.size();
+		double sqrsum = 0.0;
+		for (int i = 0; i <len; i++) {
+			sqrsum = sqrsum + inputData.get(i) * inputData.get(i);
+		}
+		return sqrsum;
+	}
+	//求方差
+	public static double MATH_getVariance(List<Double> inputData) {
+		int count = inputData.size();
+		double sqrsum = MATH_getSquareSum(inputData);
+		double average = MATH_getAverage(inputData);
+		double result = (sqrsum - count * average * average) / count;
+		return result; 
+	}
+	//求标准差
+	public static double MATH_getStandardDiviation(List<Double> inputData) {
+		double result;
+		//绝对值化很重要
+		result = Math.sqrt(Math.abs(MATH_getVariance(inputData)));
+		return result;
+	}
+	
 }

@@ -1,4 +1,4 @@
-package com.data;
+package com.analysis;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,7 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.db.FileFunction;
+import com.data.FileFunction;
 import com.myClass.MyStatic;
 import com.myClass.U;
 import com.sun.jna.Library;

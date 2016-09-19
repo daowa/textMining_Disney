@@ -17,9 +17,11 @@ public class MyStatic {
 //	public final static String TABLE_DianPing = "test_dianping";
 //	public final static String TABLE_WenDa = "test_wenda";
 	
-	public final static String TABLE_Middle = "middle";
-	public final static String TABLE_TrainingSet = "training_set";//固定关键词数的人工标引训练集
-	public final static String TABLE_TrainingSet2 = "training_set2";//不固定关键词数的人工标引训练集
+	public final static String TABLE_Middle_YouJi = "middle_youji";
+	public final static String TABLE_Middle_DianPing = "middle_dianping";
+	public final static String TABLE_TrainingSet_YouJi = "training_set_youji";
+	public final static String TABLE_TrainingSet_DianPing = "training_set_dianping";
+	
 	
 	//游记
 	public final static String KEY_ID_rawYouJi = "idraw_youji";
@@ -51,7 +53,7 @@ public class MyStatic {
 	public final static String KEY_Stats = "stats";
 	
 	//关键词数据库
-	public final static String KEY_Keyword = "keyword";
+	public final static String KEY_Keyword = "keywords";
 	
 	public final static String WebFrom_MaFengWo = "蚂蜂窝";
 	public final static String WebFrom_XieCheng = "携程";
@@ -65,6 +67,7 @@ public class MyStatic {
 	public final static String City_Paris = "巴黎";
 	public final static String City_California = "加州";
 	public final static String City_Orlando = "奥兰多";
+	public final static String City_ShangHai = "上海";
 	
 	public final static int Category_YouJi = 0;
 	public final static int Category_DianPing = 1;
@@ -84,7 +87,4 @@ public class MyStatic {
 	//多少篇点评行程一个文档，输出以提取新词
 	public final static int SIZE_DianPingSet = 5000;
 	
-	//人工标引关键词的方式，1版本表示固定关键词数，2版本表示不固定关键词数
-	public final static int Version_HUMINDEX_1 = 1;
-	public final static int Version_HUMINDEX_2 = 2;
 }

@@ -17,15 +17,12 @@ import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.regex.Pattern;
 
-import sun.misc.Regexp;
-import sun.org.mozilla.javascript.internal.json.JsonParser;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.data.Data_Segmentation;
-import com.data.NLPIR;
-import com.db.DBFunction;
-import com.db.FileFunction;
+import com.analysis.Data_Segmentation;
+import com.analysis.NLPIR;
+import com.data.DBFunction;
+import com.data.FileFunction;
 import com.spreada.utils.chinese.ZHConverter;
 
 public class test {

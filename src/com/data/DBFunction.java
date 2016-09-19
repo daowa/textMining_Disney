@@ -1,4 +1,4 @@
-package com.db;
+package com.data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,6 @@ import java.util.Vector;
 
 import com.myClass.MyStatic;
 import com.myClass.U;
-import com.sun.org.apache.bcel.internal.generic.IfInstruction;
 
 public class DBFunction {
 	
@@ -180,6 +180,45 @@ public class DBFunction {
         }  
         return i;//返回影响的行数，1为执行成功  
     }
+    
+    public static ResultSet selectAll(int category){
+    	String sql = "";
+    	if(category == MyStatic.Category_YouJi)
+    		sql = "select * from " + MyStatic.TABLE_YouJi;
+    	else if(category == MyStatic.Category_DianPing)
+    		sql = "select * from " + MyStatic.TABLE_DianPing;
+    	else if(category == MyStatic.Category_WenDa)
+    		sql = "select * from " + MyStatic.TABLE_WenDa;
+		try {
+			Statement stmt = cnn.createStatement(); 
+			ResultSet rs = stmt.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        return null;  
+    }
+    
+    //数据库中共有多少条记录
+    public static int getRowsCount(int category){
+    	String sql = "";
+    	if(category == MyStatic.Category_YouJi)
+    		sql = "select count(*) as rowCount from " + MyStatic.TABLE_YouJi;
+    	else if(category == MyStatic.Category_DianPing)
+    		sql = "select count(*) as rowCount from " + MyStatic.TABLE_DianPing;
+    	else if(category == MyStatic.Category_WenDa)
+    		sql = "select count(*) as rowCount from " + MyStatic.TABLE_WenDa;
+    	int count = 0;
+    	try{
+    		Statement stmt = cnn.createStatement();//两个参数来结果集中的指针可以移动
+			ResultSet rs = stmt.executeQuery(sql);
+			rs.next();
+			count = rs.getInt("rowCount");
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}  
+    	return count;
+    }
 	
     public static ResultSet selectAllFromYouJi(){
     	String sql = "select * from " + MyStatic.TABLE_YouJi;  
@@ -272,9 +311,13 @@ public class DBFunction {
     	return count;
     }
     
-    public static int updateDianPingContent(int id, String content){
-    	String sql = "update " + MyStatic.TABLE_DianPing + " set " + MyStatic.KEY_Content + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
-    	int count = 0;
+    public static int updateContent(int category, int id, String content){
+    	String sql = "";
+    	if(category == MyStatic.Category_DianPing)
+    		sql = "update " + MyStatic.TABLE_DianPing + " set " + MyStatic.KEY_Content + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    	else if(category == MyStatic.Category_YouJi)
+    		sql = "update " + MyStatic.TABLE_YouJi + " set " + MyStatic.KEY_Content + " =? where " + MyStatic.KEY_ID_rawYouJi + " =?";
+    	int count = 0;	
     	try{
     		PreparedStatement ps = cnn.prepareStatement(sql);
     		ps.setString(1, content);
@@ -288,9 +331,13 @@ public class DBFunction {
     }
     
     //插入中间数据库
-    public static int insertMiddle(int id, String stats) throws SQLException{
+    public static int insertMiddle(int category, int id, String stats) throws SQLException{
     	int i = 0;
-    	String sql = "insert into " + MyStatic.TABLE_Middle + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Stats + ") value(?,?)";
+    	String sql = "";
+    	if(category == MyStatic.Category_YouJi)
+    		sql = "insert into " + MyStatic.TABLE_Middle_YouJi + "(" + MyStatic.KEY_ID_rawYouJi + "," + MyStatic.KEY_Stats + ") value(?,?)";
+    	else if(category == MyStatic.Category_DianPing)
+    		sql = "insert into " + MyStatic.TABLE_Middle_DianPing + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Stats + ") value(?,?)";
     	PreparedStatement ps = cnn.prepareStatement(sql);
     	ps.setInt(1, id);
     	ps.setString(2, stats);
@@ -298,21 +345,25 @@ public class DBFunction {
     	return i;
     }
     
+    
     //随机获取n条点评，进行人工标引
     //第一个参数：几条点评
     //第二个参数：起始id
     //第三个参数：结束id+1
-    public static ResultSet getRandomDianPing(int n, int startID, int endID) throws SQLException{
-    	String sql = "select * from " + MyStatic.TABLE_DianPing + " where " + MyStatic.KEY_ID_rawDianPing + " in "
+    public static ResultSet getRandomContent(int category, int n, int startID, int endID) throws SQLException{
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_YouJi : MyStatic.TABLE_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "select * from " + table + " where " + keyID + " in "
     			+ U.getRandom_String(U.getRandom(n, startID, endID)) + ";";
     	Statement stmt = cnn.createStatement();
     	ResultSet rs = stmt.executeQuery(sql);
     	return rs;
     }
     //选择该待标引的点评之前并没有标引过
-    public static boolean DianPing_isIndexed(int version, int id) throws SQLException{
-    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
-    	String sql = "select * from " + table + " where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    public static boolean isIndexed(int category, int id) throws SQLException{
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_TrainingSet_YouJi : MyStatic.TABLE_TrainingSet_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "select * from " + table + " where " + keyID + " =?";
     	PreparedStatement ps = cnn.prepareStatement(sql);
     	ps.setInt(1, id);
     	ResultSet rs = ps.executeQuery();
@@ -322,8 +373,10 @@ public class DBFunction {
     }
     
     //根据id从中间数据库获取该记录的词频、tf-idf、词性等特征数据
-    public static Map<String, Vector<String>> getDianPingStats(int id) throws SQLException{
-    	String sql = "select * from " + MyStatic.TABLE_Middle + " where " + MyStatic.KEY_ID_rawDianPing + " = " + id;
+    public static Map<String, Vector<String>> getStats(int category, int id) throws SQLException{
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_Middle_YouJi : MyStatic.TABLE_Middle_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "select * from " + table + " where " + keyID + " = " + id;
     	Statement stmt = cnn.createStatement();
     	ResultSet rs = stmt.executeQuery(sql);
     	rs.next();
@@ -333,10 +386,11 @@ public class DBFunction {
     }
     
     //将标引的关键词写入数据库
-    public static int insertTrainingSet(int version, int id, String[] keywords) throws SQLException{
+    public static int insertTrainingSet(int category, int id, String[] keywords) throws SQLException{
     	int i = 0;
-    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
-    	String sql = "insert into " + table + "(" + MyStatic.KEY_ID_rawDianPing + "," + MyStatic.KEY_Keyword + ") value(?,?)";
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_TrainingSet_YouJi : MyStatic.TABLE_TrainingSet_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "insert into " + table + "(" + keyID + "," + MyStatic.KEY_Keyword + ") value(?,?)";
     	String s_keywords = "";//将keywords的list转化成 a,b,c 的形式，便于下次出库的时候的调用
     	for(String word : keywords)
     		s_keywords += word + ",";
@@ -350,9 +404,10 @@ public class DBFunction {
     }
     
     //更新训练集的内容
-    public static int updateTrainingSetContent(int version, int id, String content){
-    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
-    	String sql = "update " + table + " set " + MyStatic.KEY_Keyword + " =? where " + MyStatic.KEY_ID_rawDianPing + " =?";
+    public static int updateTrainingSetContent(int category, int id, String content){
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_TrainingSet_YouJi : MyStatic.TABLE_TrainingSet_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "update " + table + " set " + MyStatic.KEY_Keyword + " =? where " + keyID + " =?";
     	int count = 0;
     	try{
     		PreparedStatement ps = cnn.prepareStatement(sql);
@@ -367,8 +422,8 @@ public class DBFunction {
     }
 
     //获取标引的测试集数据中的所有记录
-    public static ResultSet selectAllFromTrainingSet(int version){
-    	String table = (version == MyStatic.Version_HUMINDEX_1) ? MyStatic.TABLE_TrainingSet : MyStatic.TABLE_TrainingSet2;
+    public static ResultSet selectAllFromTrainingSet(int category){
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_TrainingSet_YouJi : MyStatic.TABLE_TrainingSet_DianPing;
     	String sql = "select * from " + table;  
 		try {
 			Statement stmt = cnn.createStatement();
@@ -381,8 +436,12 @@ public class DBFunction {
     }
     
     //获取middle中的所有记录
-    public static ResultSet selectAllFromMiddle(){
-    	String sql = "select * from " + MyStatic.TABLE_Middle;
+    public static ResultSet selectAllFromMiddle(int category){
+    	String sql = "";
+    	if(category == MyStatic.Category_YouJi)
+    		sql = "select * from " + MyStatic.TABLE_Middle_YouJi;
+    	else if(category == MyStatic.Category_DianPing)
+    		sql = "select * from " + MyStatic.TABLE_Middle_DianPing;
     	try {
 			Statement stmt = cnn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
@@ -394,8 +453,10 @@ public class DBFunction {
     }
     
     //根据id从middle表中获取特征值
-    public static String getFeature(int id){
-    	String sql = "select * from " + MyStatic.TABLE_Middle + " where " + MyStatic.KEY_ID_rawDianPing + " = " + id;
+    public static String getFeature(int category, int id){
+    	String table = (category == MyStatic.Category_YouJi) ? MyStatic.TABLE_Middle_YouJi : MyStatic.TABLE_Middle_DianPing;
+    	String keyID = (category == MyStatic.Category_YouJi) ? MyStatic.KEY_ID_rawYouJi : MyStatic.KEY_ID_rawDianPing;
+    	String sql = "select * from " + table + " where " + keyID + " = " + id;
     	String result = "";
     	try {
     		Statement stmt = cnn.createStatement();
@@ -410,4 +471,74 @@ public class DBFunction {
     	}
 		return result;
      }
+    
+    //获取所有关键词
+    public static List<String> getKeyword(){
+    	String sql = "SELECT * FROM disney.keywords";
+    	List<String> result = new ArrayList<String>();
+    	try {
+    		Statement stmt = cnn.createStatement();
+    		ResultSet rs = stmt.executeQuery(sql);
+    		while(rs.next()){
+    			result.add(rs.getString(MyStatic.KEY_ID_rawDianPing) + "\t" + rs.getString(MyStatic.KEY_Keyword));
+    		}
+    		
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	}
+		return result;
+    }
+    
+    //根据地区从keywords表中读取关键词
+    public static List<String> getKeywordByAddress(String city){
+    	String sql = "SELECT * FROM disney.clean_dianping inner join disney.keywords on disney.clean_dianping.idraw_dianping = disney.keywords.idraw_dianping where city = \""
+    			+ city + "\";";
+    	List<String> result = new ArrayList<String>();
+    	try {
+    		Statement stmt = cnn.createStatement();
+    		ResultSet rs = stmt.executeQuery(sql);
+    		while(rs.next()){
+    			result.add(rs.getString(MyStatic.KEY_Keyword));
+    		}
+    		
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	}
+		return result;
+    }
+    
+    //根据月份从keywords表中读取关键词
+    public static List<String> getKeywordByMonth(int month){
+    	String sql = "SELECT * FROM disney.clean_dianping inner join disney.keywords on disney.clean_dianping.idraw_dianping = disney.keywords.idraw_dianping where month(time) = "
+    			+ month + ";";
+    	List<String> result = new ArrayList<String>();
+    	try {
+    		Statement stmt = cnn.createStatement();
+    		ResultSet rs = stmt.executeQuery(sql);
+    		while(rs.next()){
+    			result.add(rs.getString(MyStatic.KEY_Keyword));
+    		}
+    		
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	}
+		return result;
+    }
+    
+    //根据id获取城市
+    public static String getCity(int id){
+    	String sql = "Select * From disney.clean_dianping where idraw_dianping = " + id;
+    	String result = "";
+    	try {
+    		Statement stmt = cnn.createStatement();
+    		ResultSet rs = stmt.executeQuery(sql);
+    		while(rs.next()){
+    			result = rs.getString(MyStatic.KEY_City);
+    		}
+    		
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	}
+		return result;
+    }
 }
